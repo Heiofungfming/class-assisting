@@ -2,11 +2,9 @@
 	<view class="content">
 		<image class="logo" src="/static/logo.png"></image>
 		<view>
-			<text class="title">{{title}}</text>
+			<text class="title">我的</text>
 		</view>
-		<u-button shape="circle" :hair-line="true">乌啼</u-button>
-    <u-button shape="circle" :hair-line="false">乌啼</u-button>
-		<u-tabbar v-model="current" :list="list" :mid-button="true"></u-tabbar>
+		<u-tabbar :list="list" :mid-button="true"></u-tabbar>
 	</view>
 </template>
 
@@ -20,14 +18,16 @@
 						text: '首页',
 						count: 2,
 						isDot: true,
-						customIcon: false,
+            customIcon: false,
+            pagePath: "/pages/home/index"
 					},
 					{
 						iconPath: "https://cdn.uviewui.com/uview/common/min_button.png",
 						selectedIconPath: "https://cdn.uviewui.com/uview/common/min_button_select.png",
 						text: '发布',
 						midButton: true,
-						customIcon: false,
+            customIcon: false,
+            pagePath: "/pages/add/index"
 					},
 					{
 						iconPath: "account",
@@ -35,10 +35,10 @@
 						text: '我的',
 						count: 23,
 						isDot: false,
-						customIcon: false,
+            customIcon: false,
+            pagePath: "/pages/self/index"
 					},
-				],
-				current: 0
+				]
 			}
 		},
 		onLoad() {
