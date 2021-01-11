@@ -13,8 +13,8 @@
 		data() {
 			return {
 				list: [{
-						iconPath: "home",
-						selectedIconPath: "home-fill",
+						iconPath: "/static/image/tabbar/home.png",
+						selectedIconPath: "/static/image/tabbar/home-fill.png",
 						text: '首页',
 						count: 2,
 						isDot: true,
@@ -22,16 +22,16 @@
             pagePath: "/pages/home/index"
 					},
 					{
-						iconPath: "https://cdn.uviewui.com/uview/common/min_button.png",
-						selectedIconPath: "https://cdn.uviewui.com/uview/common/min_button_select.png",
+						iconPath: "/static/image/tabbar/add.png",
+						selectedIconPath: "/static/image/tabbar/add-fill.png",
 						text: '发布',
 						midButton: true,
             customIcon: false,
             pagePath: "/pages/add/index"
 					},
 					{
-						iconPath: "account",
-						selectedIconPath: "account-fill",
+						iconPath: "/static/image/tabbar/me.png",
+						selectedIconPath: "/static/image/tabbar/me-fill.png",
 						text: '我的',
 						count: 23,
 						isDot: false,
