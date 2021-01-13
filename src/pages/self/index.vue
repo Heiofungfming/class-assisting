@@ -4,7 +4,10 @@
 		<view>
 			<text class="title">我的</text>
 		</view>
-		<u-tabbar :list="list" :mid-button="true"></u-tabbar>
+		<u-tabbar :list="tabbarList" 
+      :mid-button="true"
+      active-color="#5677FC"
+      inactive-color="8a8a8a"></u-tabbar>
 	</view>
 </template>
 
@@ -12,37 +15,11 @@
 	export default {
 		data() {
 			return {
-				list: [{
-						iconPath: "/static/image/tabbar/home.png",
-						selectedIconPath: "/static/image/tabbar/home-fill.png",
-						text: '首页',
-						count: 2,
-						isDot: true,
-            customIcon: false,
-            pagePath: "/pages/home/index"
-					},
-					{
-						iconPath: "/static/image/tabbar/add.png",
-						selectedIconPath: "/static/image/tabbar/add-fill.png",
-						text: '发布',
-						midButton: true,
-            customIcon: false,
-            pagePath: "/pages/add/index"
-					},
-					{
-						iconPath: "/static/image/tabbar/me.png",
-						selectedIconPath: "/static/image/tabbar/me-fill.png",
-						text: '我的',
-						count: 23,
-						isDot: false,
-            customIcon: false,
-            pagePath: "/pages/self/index"
-					},
-				]
+        tabbarList: []
 			}
 		},
 		onLoad() {
-
+      this.tabbarList = [...this.$store.state.tabbarList]
 		},
 		methods: {
 

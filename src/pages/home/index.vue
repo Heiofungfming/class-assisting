@@ -1,51 +1,54 @@
 <template>
 	<view class="content">
+  <view style="width: 100%;">
+    <u-tabs :list="tabList"
+      :is-scroll="false"
+      :current="current"
+      @change="change"></u-tabs>
+    <tabs :list="tabList"
+      :is-scroll="false"
+      :current="current"
+      @change="change"></tabs>
+  </view>
 		<image class="logo" src="/static/logo.png"></image>
 		<view>
 			<text class="title">主页</text>
 		</view>
-		<u-tabbar :list="list" :mid-button="true"></u-tabbar>
+		<u-tabbar :list="tabbarList" 
+      :mid-button="true"
+      active-color="#5677FC"
+      inactive-color="8a8a8a"></u-tabbar>
 	</view>
 </template>
 
 <script>
+  // import tabs from '@/component/tabs/u-tabs' 
 	export default {
+    components: {
+      tabs
+    },
 		data() {
 			return {
-								list: [{
-						iconPath: "/static/image/tabbar/home.png",
-						selectedIconPath: "/static/image/tabbar/home-fill.png",
-						text: '首页',
-						count: 2,
-						isDot: true,
-            customIcon: false,
-            pagePath: "/pages/home/index"
-					},
-					{
-						iconPath: "/static/image/tabbar/add.png",
-						selectedIconPath: "/static/image/tabbar/add-fill.png",
-						text: '发布',
-						midButton: true,
-            customIcon: false,
-            pagePath: "/pages/add/index"
-					},
-					{
-						iconPath: "/static/image/tabbar/me.png",
-						selectedIconPath: "/static/image/tabbar/me-fill.png",
-						text: '我的',
-						count: 23,
-						isDot: false,
-            customIcon: false,
-            pagePath: "/pages/self/index"
-					},
-				]
+        tabList: [
+          {
+            name: '作业'
+          }, {
+            name: '通知'
+          }, {
+            name: '文档',
+          }
+        ],
+				current: 0,
+        tabbarList: []
 			}
 		},
 		onLoad() {
-
+      this.tabbarList = [...this.$store.state.tabbarList]
 		},
 		methods: {
-
+      change(index) {
+				this.current = index;
+			}
 		}
 	}
 </script>
