@@ -6,12 +6,13 @@
 		<view :id="id">
 			<scroll-view scroll-x class="u-scroll-view" :scroll-left="scrollLeft" scroll-with-animation>
 				<view class="u-scroll-box" :class="{'u-tabs-scorll-flex': !isScroll}">
+          <view v-if="showBar" class="u-tab-bar" :style="[tabBarStyle]"></view>
 					<view class="u-tab-item u-line-1" :id="'u-tab-item-' + index" v-for="(item, index) in list" :key="index" @tap="clickTab(index)"
 					 :style="[tabItemStyle(index)]">
+           <img :src="item.imgPath" width="60" height="60" style="z-index:10">
 						<u-badge :count="item[count] || item['count'] || 0" :offset="offset" size="mini"></u-badge>
 						{{ item[name] || item['name']}}
 					</view>
-					<view v-if="showBar" class="u-tab-bar" :style="[tabBarStyle]"></view>
 				</view>
 			</scroll-view>
 		</view>
@@ -197,13 +198,13 @@
 			tabBarStyle() {
 				let style = {
 					width: this.barWidth + 'rpx',
-					transform: `translate(${this.scrollBarLeft}px, -100%)`,
+					transform: `translate(${this.scrollBarLeft}px)`,
 					// 滑块在页面渲染后第一次滑动时，无需动画效果
 					'transition-duration': `${this.barFirstTimeMove ? 0 : this.duration }s`,
 					'background-color': this.activeColor,
 					height: this.barHeight + 'rpx',
 					// 设置一个很大的值，它会自动取能用的最大值，不用高度的一半，是因为高度可能是单数，会有小数出现
-					'border-radius': `${this.barHeight / 2}px`
+					'border-radius': '4px'
 				};
 				Object.assign(style, this.barStyle);
 				return style;
@@ -213,7 +214,7 @@
 				return (index) => {
 					let style = {
 						height: this.height + 'rpx',
-						'line-height': this.height + 'rpx',
+						// 'line-height': this.height + 'rpx',
 						'font-size': this.fontSize + 'rpx',
 						'transition-duration': `${this.duration}s`,
 						padding: this.isScroll ? `0 ${this.gutter}rpx` : '',
@@ -350,7 +351,9 @@
 	.u-tab-item {
 		position: relative;
 		/* #ifndef APP-NVUE */
-		display: inline-block;
+		display: flex;
+    flex-direction: column;
+    align-items: center;
 		/* #endif */
 		text-align: center;
 		transition-property: background-color, color;
@@ -358,7 +361,8 @@
 
 	.u-tab-bar {
 		position: absolute;
-		bottom: 0;
+		top: 0;
+    z-index: 5;
 	}
 
 	.u-tabs-scorll-flex {

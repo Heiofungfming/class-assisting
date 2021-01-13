@@ -8,6 +8,11 @@
     <tabs :list="tabList"
       :is-scroll="false"
       :current="current"
+      height="160"
+      bar-width="120"
+      bar-height="120"
+      bg-color="#5677FC"
+      active-color="#fff"
       @change="change"></tabs>
   </view>
 		<image class="logo" src="/static/logo.png"></image>
@@ -22,7 +27,7 @@
 </template>
 
 <script>
-  // import tabs from '@/component/tabs/u-tabs' 
+  import tabs from '../../components/tabs/tabs' 
 	export default {
     components: {
       tabs
@@ -31,11 +36,14 @@
 			return {
         tabList: [
           {
-            name: '作业'
+            name: '作业',
+            imgPath: '/static/image/tabbar/home.png'
           }, {
-            name: '通知'
+            name: '通知',
+            imgPath: '/static/image/tabbar/home.png'
           }, {
             name: '文档',
+            imgPath: '/static/image/tabbar/home.png'
           }
         ],
 				current: 0,
