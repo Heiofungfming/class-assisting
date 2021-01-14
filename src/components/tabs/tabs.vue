@@ -9,7 +9,12 @@
           <view v-if="showBar" class="u-tab-bar" :style="[tabBarStyle]"></view>
 					<view class="u-tab-item u-line-1" :id="'u-tab-item-' + index" v-for="(item, index) in list" :key="index" @tap="clickTab(index)"
 					 :style="[tabItemStyle(index)]">
-           <img :src="item.imgPath" width="60" height="60" style="z-index:10">
+           <img :src="item.imgPath"
+              v-if="index !== currentIndex"
+              :style="[imgStyle]">
+           <img :src="item.selectedImgPath"
+            v-if="index === currentIndex"
+            :style="[imgStyle]">
 						<u-badge :count="item[count] || item['count'] || 0" :offset="offset" size="mini"></u-badge>
 						{{ item[name] || item['name']}}
 					</view>
@@ -157,6 +162,10 @@
 			itemWidth: {
 				type: [Number, String],
 				default: 'auto'
+      },
+      imgSize: {
+				type: [String, Number],
+				default: 100
 			}
 		},
 		data() {
@@ -232,7 +241,16 @@
 					}
 					return style;
 				}
-			}
+      },
+      // img的样式
+      imgStyle() {
+        let style = {
+          width: this.imgSize + 'rpx',
+          height: this.imgSize + 'rpx',
+          'z-index': '15'
+        }
+        return style
+      }
 		},
 		methods: {
 			// 设置一个init方法，方便多处调用
@@ -356,12 +374,13 @@
     align-items: center;
 		/* #endif */
 		text-align: center;
-		transition-property: background-color, color;
+    transition-property: background-color, color;
+    margin-top: 10px;
 	}
 
 	.u-tab-bar {
 		position: absolute;
-		top: 0;
+		top: 10px;
     z-index: 5;
 	}
 

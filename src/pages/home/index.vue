@@ -1,18 +1,15 @@
 <template>
 	<view class="content">
   <view style="width: 100%;">
-    <u-tabs :list="tabList"
-      :is-scroll="false"
-      :current="current"
-      @change="change"></u-tabs>
     <tabs :list="tabList"
       :is-scroll="false"
       :current="current"
       height="160"
-      bar-width="120"
-      bar-height="120"
+      bar-width="100"
+      bar-height="100"
       bg-color="#5677FC"
       active-color="#fff"
+      inactive-color="#fff"
       @change="change"></tabs>
   </view>
 		<image class="logo" src="/static/logo.png"></image>
@@ -37,13 +34,16 @@
         tabList: [
           {
             name: '作业',
-            imgPath: '/static/image/tabbar/home.png'
+            imgPath: '/static/image/tabs/homework.png',
+            selectedImgPath: '/static/image/tabs/homework_fill.png'
           }, {
             name: '通知',
-            imgPath: '/static/image/tabbar/home.png'
+            imgPath: '/static/image/tabs/remind.png',
+            selectedImgPath: '/static/image/tabs/remind_fill.png'
           }, {
             name: '文档',
-            imgPath: '/static/image/tabbar/home.png'
+            imgPath: '/static/image/tabs/document.png',
+            selectedImgPath: '/static/image/tabs/document_fill.png'
           }
         ],
 				current: 0,
