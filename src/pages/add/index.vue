@@ -7,7 +7,7 @@
 		<u-tabbar :list="tabbarList" 
       :mid-button="true"
       active-color="#5677FC"
-      inactive-color="8a8a8a"></u-tabbar>
+      inactive-color="#333333"></u-tabbar>
 	</view>
 </template>
 

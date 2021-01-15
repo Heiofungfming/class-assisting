@@ -12,14 +12,28 @@
       inactive-color="#fff"
       @change="change"></tabs>
   </view>
-		<image class="logo" src="/static/logo.png"></image>
-		<view>
-			<text class="title">主页</text>
-		</view>
-		<u-tabbar :list="tabbarList" 
-      :mid-button="true"
-      active-color="#5677FC"
-      inactive-color="8a8a8a"></u-tabbar>
+  <u-input v-model="workType" 
+    type="select"
+    @click="showWorkList = true"/>
+  <u-select 
+    v-model="showWorkList" 
+    mode="single-column" 
+    :list="workList" 
+    @confirm="selectWork"></u-select>
+  <u-input v-model="doneType" 
+    type="select" 
+    @click="showDoneList = true"/>
+  <u-select v-model="showDoneList" 
+    mode="single-column" 
+    :list="doneList" 
+    @confirm="selectDone"></u-select>
+  <view>
+    <text class="title">主页</text>
+  </view>
+  <u-tabbar :list="tabbarList" 
+    :mid-button="true"
+    active-color="#5677FC"
+    inactive-color="#333333"></u-tabbar>
 	</view>
 </template>
 
@@ -47,7 +61,47 @@
           }
         ],
 				current: 0,
-        tabbarList: []
+        tabbarList: [],
+        showWorkList: false,
+        showDoneList: false,
+				workList: [
+					{
+						value: '0',
+						label: '全部'
+					},
+					{
+						value: '1',
+						label: '进行中'
+          },
+          {
+						value: '2',
+						label: '已截至'
+					}
+        ],
+        doneList: [
+          {
+						value: '3',
+						label: '未完成'
+					},
+					{
+						value: '4',
+						label: '已完成'
+          },
+          {
+						value: '2',
+						label: '个人作业'
+          },
+          {
+						value: '3',
+						label: '班级作业'
+          },
+          {
+						value: '4',
+						label: '班级作业'
+          }
+        ],
+        workType: '',
+        doneType: ''
 			}
 		},
 		onLoad() {
@@ -56,32 +110,17 @@
 		methods: {
       change(index) {
 				this.current = index;
-			}
+      },
+      selectWork(e) {
+        this.workType = e[0].label
+      },
+      selectDone(e) {
+        this.doneType = e[0].label
+      }
 		}
 	}
 </script>
 
 <style>
-	.content {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-	}
 
-	.logo {
-		height: 200rpx;
-		width: 200rpx;
-		margin: 200rpx auto 50rpx auto;
-	}
-
-	.text-area {
-		display: flex;
-		justify-content: center;
-	}
-
-	.title {
-		font-size: 36rpx;
-		color: #8f8f94;
-	}
 </style>
