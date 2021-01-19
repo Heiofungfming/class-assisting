@@ -65,7 +65,9 @@
       inactive-color="#333333"
       :before-switch="switchAdd"></u-tabbar>
     </view>
-    <u-picker v-model="showAddwork" mode="selector"></u-picker>
+    <u-picker v-model="showAddwork"
+      mode="selector"
+      range="workTypeList"></u-picker>
 	</view>
 </template>
 
