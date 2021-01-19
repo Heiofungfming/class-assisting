@@ -65,9 +65,16 @@
       inactive-color="#333333"
       :before-switch="switchAdd"></u-tabbar>
     </view>
-    <u-picker v-model="showAddwork"
+    <!-- <u-picker v-model="showAddwork"
       mode="selector"
-      range="workTypeList"></u-picker>
+      :range="workTypeList"></u-picker> -->
+    <u-popup class="popup_box" 
+      v-model="showAddwork"
+      mode="bottom">
+			<u-button :custom-style="popupBtnStyle" :hair-line="false">班级作业</u-button>
+      <u-button :custom-style="popupBtnStyle" :hair-line="false">个人作业</u-button>
+      <u-button :custom-style="popupBtnStyle" :hair-line="false">取消</u-button>
+		</u-popup>
 	</view>
 </template>
 
@@ -143,7 +150,15 @@
         title: '素胚勾勒出青花，笔锋浓转淡',
         subTitle: '2020-05-15',
         thumb: 'http://pic2.sc.chinaz.com/Files/pic/pic9/202002/hpic2119_s.jpg',
-        showAddwork: false
+        showAddwork: false,
+        workTypeList: [
+          '班级作业',
+          '个人作业'
+        ],
+        popupBtnStyle: {
+          border: 'none',
+          borderBottom: '#8a8a8a'
+        },
 			}
 		},
 		onLoad() {
@@ -185,22 +200,29 @@
   }
 }
 
+.popup_box {
+  background: #8a8a8a;
+  .popupBtn {
+    border: none;
+  }
+}
+
 .u-card-wrap { 
-		background-color: $u-bg-color;
-		padding: 1px;
-	}
+  background-color: $u-bg-color;
+  padding: 1px;
+}
 	
-	.u-body-item {
-		font-size: 32rpx;
-		color: #333;
-		padding: 20rpx 10rpx;
-	}
+.u-body-item {
+  font-size: 32rpx;
+  color: #333;
+  padding: 20rpx 10rpx;
+}
 		
-	.u-body-item image {
-		width: 120rpx;
-		flex: 0 0 120rpx;
-		height: 120rpx;
-		border-radius: 8rpx;
-		margin-left: 12rpx;
-	}
+.u-body-item image {
+  width: 120rpx;
+  flex: 0 0 120rpx;
+  height: 120rpx;
+  border-radius: 8rpx;
+  margin-left: 12rpx;
+}
 </style>
