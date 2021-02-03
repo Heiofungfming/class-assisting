@@ -44,19 +44,48 @@
       </view>
     </view>
     <view class="content_body">
-      <u-card padding="10">
-        <view class="" slot="head">
-          {{title}}
-          <a>---</a>
-        </view>
-        <view class="" slot="body">
-          <view class="u-body-item u-flex">
-            <view class="u-body-item-title">瓶身描绘的牡丹一如你初妆，冉冉檀香透过窗心事我了然，宣纸上走笔至此搁一半</view>
-            <image src="https://img11.360buyimg.com/n7/jfs/t1/94448/29/2734/524808/5dd4cc16E990dfb6b/59c256f85a8c3757.jpg" mode="aspectFill"></image>
+      <u-swipe-action btn-width="180" :options="options" bg-color="#ededed">
+        <u-card padding="10" full>
+          <view class="" slot="head">
+            {{title}}
           </view>
-        </view>
-        <view class="" slot="foot">{{subTitle}}</view>
-      </u-card>
+          <view class="" slot="body">
+            <view class="u-body-item u-flex">
+              <view class="u-body-item-title">瓶身描绘的牡丹一如你初妆，冉冉檀香透过窗心事我了然，宣纸上走笔至此搁一半</view>
+              <image src="https://img11.360buyimg.com/n7/jfs/t1/94448/29/2734/524808/5dd4cc16E990dfb6b/59c256f85a8c3757.jpg" mode="aspectFill"></image>
+            </view>
+          </view>
+          <view class="" slot="foot">{{subTitle}}</view>
+        </u-card>
+      </u-swipe-action>
+      <u-swipe-action btn-width="180" :options="options" bg-color="#ededed">
+        <u-card padding="10" full>
+          <view class="" slot="head">
+            {{title}}
+          </view>
+          <view class="" slot="body">
+            <view class="u-body-item u-flex">
+              <view class="u-body-item-title">瓶身描绘的牡丹一如你初妆，冉冉檀香透过窗心事我了然，宣纸上走笔至此搁一半</view>
+              <image src="https://img11.360buyimg.com/n7/jfs/t1/94448/29/2734/524808/5dd4cc16E990dfb6b/59c256f85a8c3757.jpg" mode="aspectFill"></image>
+            </view>
+          </view>
+          <view class="" slot="foot">{{subTitle}}</view>
+        </u-card>
+      </u-swipe-action>
+      <u-swipe-action btn-width="180" :options="options" bg-color="#ededed">
+        <u-card padding="10" full>
+          <view class="" slot="head">
+            {{title}}
+          </view>
+          <view class="" slot="body">
+            <view class="u-body-item u-flex">
+              <view class="u-body-item-title">瓶身描绘的牡丹一如你初妆，冉冉檀香透过窗心事我了然，宣纸上走笔至此搁一半</view>
+              <image src="https://img11.360buyimg.com/n7/jfs/t1/94448/29/2734/524808/5dd4cc16E990dfb6b/59c256f85a8c3757.jpg" mode="aspectFill"></image>
+            </view>
+          </view>
+          <view class="" slot="foot">{{subTitle}}</view>
+        </u-card>
+      </u-swipe-action>
     </view>
     <view class="content_footer">
       <u-tabbar :list="tabbarList" 
@@ -149,7 +178,21 @@
         sheetList: [
           { text: '班级作业' },
           { text: '个人作业' }
-        ]
+        ],
+        options: [
+					{
+						text: '收藏',
+						style: {
+							backgroundColor: '#007aff'
+						}
+					},
+					{
+						text: '删除',
+						style: {
+							backgroundColor: '#dd524d'
+						}
+					}
+				]
 			}
 		},
 		onLoad() {
@@ -216,4 +259,15 @@
   border-radius: 8rpx;
   margin-left: 12rpx;
 }
+
+// .content {
+//   background: #ededed;
+//   &_body {
+//     u-swipe-action {
+//       &:not(:first-child) {
+//         margin-top: 10px;
+//       }
+//     }
+//   }
+// }
 </style>
