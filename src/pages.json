@@ -24,7 +24,7 @@
 		{
 			"path": "pages/self/index",
 			"style": {
-				"navigationBarTitleText": "模板"
+				"navigationBarTitleText": "个人中心"
 			}
     },
     {
@@ -37,6 +37,18 @@
 			"path": "pages/class/joinClass",
 			"style": {
 				"navigationBarTitleText": "加入班级"
+			}
+		},
+		{
+			"path": "pages/add/addJob",
+			"style": {
+				"navigationBarTitleText": "发布班级作业"
+			}
+		},
+		{
+			"path": "pages/add/addPersonJob",
+			"style": {
+				"navigationBarTitleText": "发布个人作业"
 			}
     }
 	],

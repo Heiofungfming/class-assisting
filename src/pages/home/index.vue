@@ -65,22 +65,18 @@
       inactive-color="#333333"
       :before-switch="switchAdd"></u-tabbar>
     </view>
-    <!-- <u-picker v-model="showAddwork"
-      mode="selector"
-      :range="workTypeList"></u-picker> -->
-    <u-popup class="popup_box" 
-      v-model="showAddwork"
-      mode="bottom">
-			<u-button :custom-style="popupBtnStyle" :hair-line="false">班级作业</u-button>
-      <u-button :custom-style="popupBtnStyle" :hair-line="false">个人作业</u-button>
-      <u-button :custom-style="popupBtnStyle" :hair-line="false">取消</u-button>
-		</u-popup>
+    <u-action-sheet :list="sheetList" 
+      v-model="showAddWork"
+      border-radius="20"
+      @click="addJob"></u-action-sheet>
 	</view>
 </template>
 
 <script>
   import tabs from '../../components/tabs/tabs' 
+  import addJobSheetMixins from '../../common/js/addJobSheetMixins'
 	export default {
+    mixins: [addJobSheetMixins],
     components: {
       tabs
     },
@@ -144,21 +140,16 @@
         workType: '全部',
         doneType: '全部',
         selectStyle: {
-          // background: '#fff'
           color: '#515151'
         },
         title: '素胚勾勒出青花，笔锋浓转淡',
         subTitle: '2020-05-15',
         thumb: 'http://pic2.sc.chinaz.com/Files/pic/pic9/202002/hpic2119_s.jpg',
-        showAddwork: false,
-        workTypeList: [
-          '班级作业',
-          '个人作业'
-        ],
-        popupBtnStyle: {
-          border: 'none',
-          borderBottom: '#8a8a8a'
-        },
+        showAddWork: false,
+        sheetList: [
+          { text: '班级作业' },
+          { text: '个人作业' }
+        ]
 			}
 		},
 		onLoad() {
@@ -173,11 +164,6 @@
       },
       selectDone(e) {
         this.doneType = e[0].label
-      },
-      switchAdd(index) {
-        if (index === 1) {
-          this.showAddwork = true
-        }
       }
 		}
 	}
@@ -202,8 +188,13 @@
 
 .popup_box {
   background: #8a8a8a;
-  .popupBtn {
-    border: none;
+  .popup_item {
+    &:not(:last-child) {
+      border-bottom: 1px solid #DDD;
+    &:last-child {
+        margin-top: 10rpx;
+      }
+    }
   }
 }
 
