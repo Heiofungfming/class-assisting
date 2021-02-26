@@ -1,3 +1,11 @@
+<!--
+ * @Author: your name
+ * @Date: 2021-01-19 21:32:23
+ * @LastEditTime: 2021-02-21 10:18:58
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: \class-assisting\src\pages\class\joinClass.vue
+-->
 <template>
 	<view class="content">
 		<view class="content_form">
@@ -61,6 +69,9 @@ export default {
   methods: {
     submit() {
       console.log('加入班级');
+      uni.switchTab({
+        url: '/pages/home/index'
+      })
     }
   }
 }

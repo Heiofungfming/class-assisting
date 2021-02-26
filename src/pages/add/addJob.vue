@@ -52,12 +52,12 @@
         </u-form-item>
         <template v-if="pageType === 0">
           <u-form-item label="是否向班级同学发送提醒"
-          prop="doc"
+          prop="isRemind"
           required>
             <u-switch slot="right" v-model="switchRemind"></u-switch>
         </u-form-item>
         <u-form-item label="是否使用收作业功能"
-          prop="doc"
+          prop="isCollect"
           required>
             <u-switch slot="right" v-model="switchCollect"></u-switch>
         </u-form-item>
@@ -67,7 +67,7 @@
     <u-button @click="submit" 
       :custom-style="squareStyle"
       :hair-line="true"
-      ripple>创建班级</u-button>
+      ripple>创建班级作业</u-button>
 	</view>
 </template>
 
