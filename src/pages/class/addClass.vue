@@ -13,9 +13,9 @@
         </u-form-item>
         <u-form-item 
           label="学院" 
-          prop="acedemy"
+          prop="academy"
           required>
-          <u-input v-model="form.acedemy" placeholder="如：计算机学院"/>
+          <u-input v-model="form.academy" placeholder="如：计算机学院"/>
         </u-form-item>
         <u-form-item 
           label="年级" 
@@ -53,12 +53,17 @@
 
 <script>
 import mixins from '@/common/js/mixins'
+import {classApi} from '@/api/api'
 export default {
   mixins: [mixins],
   data() {
     return {
       form: {
         school: '',
+        academy: '',
+        grade: '',
+        major: '',
+        class: '',
         key: '',
       },
       rules: {
@@ -76,7 +81,7 @@ export default {
             trigger: ['change','blur'],
           }
         ],
-        acedemy: [
+        academy: [
           {
             required: true,
             message: '请输入学院名称',
@@ -158,13 +163,21 @@ export default {
   },
   methods: {
     submit() {
-      this.$refs.uForm.validate(valid => {
-				if (valid) {
-					console.log('验证通过');
-				} else {
-					console.log('验证失败');
-				}
-			})
+      console.log(classApi)
+      
+      let data = classApi.addClass(this.form).then(res => {
+        console.log(res)
+      })
+
+      
+
+      // this.$refs.uForm.validate(valid => {
+			// 	if (valid) {
+			// 		console.log('验证通过');
+			// 	} else {
+			// 		console.log('验证失败');
+			// 	}
+			// })
       // uni.switchTab({
       //   url: '/pages/home/index'
       // })
