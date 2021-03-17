@@ -42,7 +42,7 @@
 		{
 			"path": "pages/add/addJob",
 			"style": {
-				"navigationBarTitleText": "发布班级作业"
+				"navigationBarTitleText": "发布作业"
 			}
 		},
 		{

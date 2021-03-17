@@ -6,16 +6,16 @@
         :label-style="labelStyle"
         ref="uForm">
         <u-form-item 
-          label="所属课程（十六个字以内）" 
+          label="所属课程" 
           prop="course"
           required>
-          <u-input v-model="form.course" placeholder="请输入作业所属课程"/>
+          <u-input v-model="form.course" placeholder="请输入作业所属课程（16位）" maxlength="16"/>
         </u-form-item>
         <u-form-item 
-          label="作业标题（十六个字符以内）" 
+          label="作业标题" 
           prop="title"
           required>
-          <u-input v-model="form.title" placeholder="请输入作业标题"/>
+          <u-input v-model="form.title" placeholder="请输入作业标题（16位）" maxlength="16"/>
         </u-form-item>
         <u-form-item 
           label="作业内容" 
@@ -34,8 +34,12 @@
           label="截止时间" 
           prop="endTime"
           required>
-          <u-input v-model="form.endTime" placeholder="请选择截止时间"/>
-          <u-button @click="showTimePicker = true">打开</u-button>
+          <u-button ripple @click="showTimePicker = true">
+            {{endTimeText}}
+            <u-icon name="clock"
+              size="34"
+              class="u-m-l-5"></u-icon>
+          </u-button>
           <u-picker v-model="showTimePicker" 
             mode="time" 
             :params="timeParams"
@@ -43,12 +47,28 @@
         </u-form-item>
         <u-form-item label="作业配图" 
           prop="image">
-          <!-- <u-upload :action="action" :file-list="fileList"></u-upload> -->
-          <u-upload ref="uUpload" :action="actionURL" :auto-upload="false" ></u-upload>
+          <u-upload ref="uUpload" 
+            :action="actionURL" 
+            :auto-upload="true"
+            del-bg-color="#8a8a8a"></u-upload>
         </u-form-item>
         <u-form-item label="作业附件" 
           prop="doc">
-           <u-button>请选择聊天中的文件</u-button>
+          <view class="pre-box" v-if="!showUploadList">
+            <view class="pre-item" v-for="(item, index) in docLists" :key="index">
+              <u-icon name="file-text" size="50" color="#8a8a8a"></u-icon>
+              <view class="pre-item-title">{{item.title}}</view>
+              <view class="pre-item-size">{{item.size}}</view>
+            </view>
+            <upload-file ref="lFile" 
+              :custom-btn="true"
+              :show-upload-list="showUploadList"
+              :action="upFileUrl">
+              <view slot="addBtn" class="slot-btn" hover-class="slot-btn__hover" hover-stay-time="150">
+                  <u-icon name="file-text" size="50" color="#8a8a8a" label="请选择聊天中的文件"></u-icon>
+              </view>
+            </upload-file>
+          </view>
         </u-form-item>
         <template v-if="pageType === 0">
           <u-form-item label="是否向班级同学发送提醒"
@@ -67,40 +87,75 @@
     <u-button @click="submit" 
       :custom-style="squareStyle"
       :hair-line="true"
-      ripple>创建班级作业</u-button>
+      ripple>{{submitBtnText}}</u-button>
+
+    <u-toast ref="uToast" />
 	</view>
 </template>
 
 <script>
 import mixins from '@/common/js/mixins'
+import uploadFile from '../../components/uploadFile'
+import {jobApi} from '@/api/api'
 export default {
   mixins: [mixins],
+  components: {
+    uploadFile
+  },
   data() {
     return {
       pageType: '', // 页面类型
       form: {
-        name: '',
-        key: '',
-        endTime: ''
+        course: '',
+        title: '',
+        detail: '',
+        remark: '',
+        endTime: '',
+        image: '',
+        doc: '',
+        isRemind: true,
+        isCollect: true,
+        // 缺少判断是否是班级作业还是个人作业的变量
       },
       rules: {
-        name: [
+        course: [
           { 
             required: true, 
-            message: '请输入要加入的班级名称', 
-            trigger: ['change','blur'],
+            message: '请输入作业所属课程', 
+            trigger: ['change','blur']
           }
+          // {
+          //   pattern: /^[0-9a-zA-Z\u4e00-\u9fa5]*$/g,
+          //   transform(value) {
+          //     return String(value);
+          //   },
+          //   message: '课程仅支持英文\\数字\\中文'
+          // }
         ],
-        key: [
+        title: [
           {
             required: true,
-            message: '请班级名称密钥', 
-            trigger: 'change'
+            message: '请输入作业标题', 
+            trigger: ['change','blur']
+          }
+        ],
+        detail: [
+          {
+            required: true,
+            message: '请输入作业内容',
+            trigger: ['change','blur']
+          }
+        ],
+        endTime: [
+          {
+            required: true,
+            message: '请选择截止时间',
+            trigger: ['change','blur']
           }
         ]
       },
       // 服务器上传地址
-      actionURL: '',
+      actionURL: 'http://localhost:3000/job/uploadImg',
       showTimePicker: false,
       timeParams: {
         year: true,
@@ -111,25 +166,97 @@ export default {
         second: false
       },
       switchRemind: false, // 是否使用作业提醒功能
-      switchCollect: false // 是否使用收集作业功能
+      switchCollect: false, // 是否使用收集作业功能
+
+      showUploadList: false, 
+        docLists: [],
+        upFileUrl: 'http://www.example.com'
     }
   },
   onLoad(obj) {
-    this.pageType = Number(obj.pageType) 
+    this.getPageType(Number(obj.pageType))
+    this.setTitle() 
+  },
+  onReady() {
+    this.$refs.uForm.setRules(this.rules)
+    // 获取文件列表
+    this.docLists = this.$refs.lFile.lists;
+  },
+  computed: {
+    endTimeText() {
+      return this.form.endTime !== '' ? this.form.endTime : '请选择截止时间'
+    },
+    submitBtnText() {
+      return this.pageType === 0 ? '创建班级作业' : '创建个人作业'
+    }
   },
   methods: {
     submit() {
-      uni.switchTab({
-        url: '/pages/home/index'
+      // let files = []
+      // files = this.$refs.uUpload.lists
+      // console.log(files)
+      
+      console.log('进入到这了')
+      jobApi.addJob(this.form).then(res => {
+        console.log(res, '添加作业')
+        let {code} = res
+        if (code === 0) this.showToast
       })
+
+      // uni.switchTab({
+      //   url: '/pages/home/index'
+      // })
     },
     getEndTime(obj) {
       console.log(obj)
       let dateText = obj.year + '-' + obj.month + '-' + obj.day
       let timeText = obj.hour + ':' + obj.minute
       this.form.endTime = dateText + ' ' + timeText
+    },
+    getPageType(type) {
+      this.pageType = type
+    },
+    setTitle() {
+      if (this.pageType === 0) {
+        uni.setNavigationBarTitle({
+          title:'发布班级作业'
+        })
+      } else {
+        uni.setNavigationBarTitle({
+          title:'发布个人作业'
+        })
+      }
+    },
+    upFile() {
+    /**
+				 * currentWebview: 当前webview
+				 * url：上传接口地址
+				 * name：附件key,服务端根据key值获取文件流，默认file,上传文件的key
+				 * header: 上传接口请求头
+				 */
+        console.log('上传文件');
+        
+				this.$refs.lFile.upload({
+					// #ifdef APP-PLUS
+					// nvue页面使用时请查阅nvue获取当前webview的api，当前示例为vue窗口
+					currentWebview: this.$mp.page.$getAppWebview(),
+					// #endif
+					url: 'http://localhost:3000/job/uploadImg',
+					name: 'myFile',
+					// header: {'Authorization':'token'},
+					// 其他业务参数直接写key,value,如：
+					// key1: 'value1',
+					// key2: 'value2',
+				});
     }
-  }
+  },
+  showToast() {
+    this.$refs.uToast.show({
+      title: '创建作业成功',
+      type: 'success',
+      url: '/pages/home/index'
+    })
+  },
 }
 </script>
 
@@ -141,4 +268,37 @@ export default {
   .content_form .u-form-item--left__content--required {
     color: #8a8a8a;
   }
+
+  .slot-btn {
+	width: 350rpx;
+	height: 80rpx;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background: rgb(244, 245, 246);
+	border-radius: 10rpx;
+  border: solid 1px #8a8a8a;
+}
+
+.slot-btn__hover {
+	background-color: rgb(235, 236, 238);
+}
+
+.pre-box {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+	.pre-item {
+		flex: 0 0 48.5%;
+    border-radius: 10rpx;
+    width: 600rpx;
+		height: 100rpx;
+		overflow: hidden;
+		position: relative;
+		margin-bottom: 20rpx;
+	}
 </style>
