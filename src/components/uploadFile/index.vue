@@ -335,11 +335,13 @@ export default {
 								this.showToast('超出最大允许的文件个数');
 								return;
 							}
+							let fileExt = this.getFileExt(val)
 							lists.push({
 								url: val.path,
 								progress: 0,
 								error: false,
-								file: val
+								file: val,
+								fileExt: fileExt
 							});
 						}
 					});
@@ -559,6 +561,12 @@ export default {
 			})
 			if(!noArrowExt) this.showToast(`不允许选择${fileExt}格式的文件`);
 			return noArrowExt;
+		},
+		getFileExt(file) {
+			let fileExt = '';
+			const reg = /.+\./;
+			fileExt = file.name.replace(reg, "").toLowerCase();
+			return fileExt
 		}
 	}
 };

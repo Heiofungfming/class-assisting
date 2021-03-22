@@ -47,18 +47,31 @@
         </u-form-item>
         <u-form-item label="作业配图" 
           prop="image">
-          <u-upload ref="uUpload" 
+          <u-upload ref="uImg" 
             :action="actionURL" 
             :auto-upload="true"
-            del-bg-color="#8a8a8a"></u-upload>
+            del-bg-color="#8a8a8a"
+            @on-success="saveImgPath"
+            @on-remove="deleteImg"></u-upload>
         </u-form-item>
         <u-form-item label="作业附件" 
           prop="doc">
+          <!-- 添加文件预览 开始-->
           <view class="pre-box" v-if="!showUploadList">
             <view class="pre-item" v-for="(item, index) in docLists" :key="index">
-              <u-icon name="file-text" size="50" color="#8a8a8a"></u-icon>
-              <view class="pre-item-title">{{item.title}}</view>
-              <view class="pre-item-size">{{item.size}}</view>
+              <u-icon size="80"
+                :name="item.fileExt === 'docx' ? 'doc' : item.fileExt"
+                custom-prefix="custom-icon"
+                :color="filecolor(item.fileExt)"
+                class="u-m-r-5"></u-icon>
+              <view class="pre-item-content">
+                <view class="pre-item-title">{{item.file.name}}</view>
+                <view class="pre-item-size">{{getFileSize(item.file.size)}}</view>
+              </view>
+              <view class="delete-icon"
+                @tap.stop="deleteDocItem(index)">
+                <u-icon class="u-icon" name="close" size="20" color="#ffffff"></u-icon>
+              </view>
             </view>
             <upload-file ref="lFile" 
               :custom-btn="true"
@@ -69,6 +82,7 @@
               </view>
             </upload-file>
           </view>
+          <!-- 添加文件预览 结束-->
         </u-form-item>
         <template v-if="pageType === 0">
           <u-form-item label="是否向班级同学发送提醒"
@@ -89,6 +103,7 @@
       :hair-line="true"
       ripple>{{submitBtnText}}</u-button>
 
+    <!-- bug：未进行提交 但文件已经上传的 -->
     <u-toast ref="uToast" />
 	</view>
 </template>
@@ -111,8 +126,8 @@ export default {
         detail: '',
         remark: '',
         endTime: '',
-        image: '',
-        doc: '',
+        image: [],
+        doc: [],
         isRemind: true,
         isCollect: true,
         // 缺少判断是否是班级作业还是个人作业的变量
@@ -169,8 +184,10 @@ export default {
       switchCollect: false, // 是否使用收集作业功能
 
       showUploadList: false, 
+        imgPathLists:[],
         docLists: [],
-        upFileUrl: 'http://www.example.com'
+        docPathLists:[],
+        upFileUrl: 'http://localhost:3000/job/uploadFile'
     }
   },
   onLoad(obj) {
@@ -188,19 +205,64 @@ export default {
     },
     submitBtnText() {
       return this.pageType === 0 ? '创建班级作业' : '创建个人作业'
+    },
+    filecolor(type) {
+      return (type) => {
+        let color = '#3a80fc'
+      switch(type) {
+        case 'doc':
+        case 'docx':
+          break
+        case 'xml':
+          color = '#039e55'
+          break
+        case 'pdf':
+          color = '#d93838'
+          break
+        case 'ppt':
+          color = '#f34e19'
+          break
+        case 'zip':
+          color = '#808a7f'
+          break
+      }
+      return color
+      }
+    },
+    // 计算文件的大小
+    getFileSize(size) {
+      return (size) => {
+        if (!size)
+            return 0;
+ 
+        var num = 1024.00; //byte
+ 
+        if (size < num)
+            return size + "B";
+        if (size < Math.pow(num, 2))
+            return (size / num).toFixed(2) + "K"; //kb
+        if (size < Math.pow(num, 3))
+            return (size / Math.pow(num, 2)).toFixed(2) + "M"; //M
+        if (size < Math.pow(num, 4))
+            return (size / Math.pow(num, 3)).toFixed(2) + "G"; //G
+        return (size / Math.pow(num, 4)).toFixed(2) + "T"; //T
+      }
     }
   },
   methods: {
     submit() {
-      // let files = []
-      // files = this.$refs.uUpload.lists
-      // console.log(files)
-      
       console.log('进入到这了')
+      // 获取图片的路径
+      this.form.image = [...this.imgPathLists]
+      // 获取文件的路径
+      if (this.docLists.length) {
+        let docPathLists = this.getDocPath()
+        this.form.doc = [...docPathLists]
+      }
       jobApi.addJob(this.form).then(res => {
         console.log(res, '添加作业')
         let {code} = res
-        if (code === 0) this.showToast
+        if (code === 0) this.$showToast('添加作业成功')
       })
 
       // uni.switchTab({
@@ -228,12 +290,12 @@ export default {
       }
     },
     upFile() {
-    /**
-				 * currentWebview: 当前webview
-				 * url：上传接口地址
-				 * name：附件key,服务端根据key值获取文件流，默认file,上传文件的key
-				 * header: 上传接口请求头
-				 */
+      /**
+           * currentWebview: 当前webview
+           * url：上传接口地址
+           * name：附件key,服务端根据key值获取文件流，默认file,上传文件的key
+           * header: 上传接口请求头
+           */
         console.log('上传文件');
         
 				this.$refs.lFile.upload({
@@ -248,15 +310,48 @@ export default {
 					// key1: 'value1',
 					// key2: 'value2',
 				});
+    },
+    showToast() {
+      this.$refs.uToast.show({
+        title: '创建作业成功',
+        type: 'success',
+        url: '/pages/home/index'
+      })
+    },
+    saveImgPath(data, index) {
+      let { realPath } = data
+      this.imgPathLists.push(realPath)
+    },
+    deleteImg(index, lists, name){
+      let delPath = this.imgPathLists[index]
+      let obj = {delPath: delPath}
+      jobApi.deleteFile(obj).then(res => {
+        let {error_code} = res
+        if (error_code === 10000) {
+          this.imgPathLists.splice(index, 1)
+        }
+      })
+    },
+    deleteDocItem(index) {
+      let { realPath } = this.docLists[index].response
+      let obj = {delPath: realPath}
+      jobApi.deleteFile(obj).then(res => {
+        let {error_code} = res
+        if (error_code === 10000) {
+          this.docLists.splice(index, 1);
+        }
+      })
+      this.$showToast('移除成功')
+    },
+    getDocPath() {
+      let arr = []
+      this.docLists.forEach(item => {
+        let {realPath} = item.response
+        arr.push(realPath)
+      })
+      return arr
     }
-  },
-  showToast() {
-    this.$refs.uToast.show({
-      title: '创建作业成功',
-      type: 'success',
-      url: '/pages/home/index'
-    })
-  },
+  }
 }
 </script>
 
@@ -296,9 +391,40 @@ export default {
 		flex: 0 0 48.5%;
     border-radius: 10rpx;
     width: 600rpx;
-		height: 100rpx;
-		overflow: hidden;
+		height: 300rpx;
+		/* overflow: hidden; */
 		position: relative;
-		margin-bottom: 20rpx;
+    margin-bottom: 30rpx;
+    padding: 20rpx;
+    display: flex;
+    align-items: center;
+    border: solid 1px #8a8a8a;
+    border-radius: 10rpx;
 	}
+
+  .pre-item-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 20rpx;
+  }
+  .pre-item-title {
+    flex: 1;
+  }
+  .pre-item-size{
+    flex: 1;
+  }
+  .delete-icon {
+    width: 44rpx;
+    height: 44rpx;
+    background: #8a8a8a;
+    position: absolute;
+    top: 10rpx;
+    right: 10rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    z-index: 10;
+  }
 </style>
