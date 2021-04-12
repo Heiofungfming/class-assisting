@@ -1,3 +1,11 @@
+<!--
+ * @Author: your name
+ * @Date: 2021-04-06 16:58:22
+ * @LastEditTime: 2021-04-06 23:43:49
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \class-assisting\src\pages\add\addremind.vue
+-->
 <template>
 	<view class="content">
 		<view class="content_form">
@@ -6,29 +14,29 @@
         :label-style="labelStyle"
         ref="uForm">
         <u-form-item 
-          label="所属课程" 
-          prop="course"
+          label="通知类型" 
+          prop="tag"
           required>
-          <u-input v-model="form.course" placeholder="请输入作业所属课程（16位）" maxlength="16"/>
+          <u-input v-model="form.tag"
+            placeholder="请输入通知所属类型（16位）"
+            maxlength="16"
+            type="select"
+            @click="showRemindTag = true"/>
+          <u-action-sheet :list="remindTagList" v-model="showRemindTag" @click="selectRemindTag"></u-action-sheet>
         </u-form-item>
         <u-form-item 
-          label="作业标题" 
+          label="通知标题" 
           prop="title"
           required>
-          <u-input v-model="form.title" placeholder="请输入作业标题（16位）" maxlength="16"/>
+          <u-input v-model="form.title" placeholder="请输入通知标题（16位）" maxlength="16"/>
         </u-form-item>
         <u-form-item 
-          label="作业内容" 
+          label="通知内容" 
           prop="detail"
           required>
           <u-input v-model="form.detail"
            placeholder="请输入作业内容"
            type="textarea"/>
-        </u-form-item>
-        <u-form-item 
-          label="作业备注" 
-          prop="remark">
-          <u-input v-model="form.remark" placeholder="请输入作业备注"/>
         </u-form-item>
         <u-form-item 
           label="截止时间" 
@@ -45,22 +53,16 @@
             :params="timeParams"
             @confirm="getEndTime"></u-picker>
         </u-form-item>
-        <u-form-item label="作业配图" prop="image">
-          <!-- <view class="img-box" v-if="!showImgList">
-            <view class="img-item" v-for="(item, index) in imgPathLists" :key="index">
-              <img class="img-item-image" :src="item.url" mode="aspectFill">
-            </view>
-          </view> -->
-          <u-upload ref="uImg"
+        <u-form-item label="通知配图" 
+          prop="image">
+          <u-upload ref="uImg" 
             :action="actionURL" 
             :auto-upload="true"
             del-bg-color="#8a8a8a"
-            :file-list="imgLists"
             @on-success="saveImgPath"
             @on-remove="deleteImg"></u-upload>
         </u-form-item>
-        {{imgPathLists}}
-        <u-form-item label="作业附件" 
+        <u-form-item label="通知附件" 
           prop="doc">
           <!-- 添加文件预览 开始-->
           <view class="pre-box" v-if="!showUploadList">
@@ -90,18 +92,11 @@
           </view>
           <!-- 添加文件预览 结束-->
         </u-form-item>
-        <template v-if="pageType === 0">
-          <u-form-item label="是否向班级同学发送提醒"
+        <u-form-item label="是否向班级同学发送提醒"
           prop="isRemind"
           required>
             <u-switch slot="right" v-model="switchRemind"></u-switch>
         </u-form-item>
-        <u-form-item label="是否使用收作业功能"
-          prop="isCollect"
-          required>
-            <u-switch slot="right" v-model="switchCollect"></u-switch>
-        </u-form-item>
-        </template>
       </u-form>
 	  </view>
     <u-button @click="submit" 
@@ -117,7 +112,7 @@
 <script>
 import mixins from '@/common/js/mixins'
 import uploadFile from '../../components/uploadFile'
-import {jobApi} from '@/api/api'
+import {remindApi} from '@/api/api'
 export default {
   mixins: [mixins],
   components: {
@@ -127,23 +122,19 @@ export default {
     return {
       pageType: '', // 页面类型
       form: {
-        course: '',
+        tag: '',
         title: '',
         detail: '',
-        remark: '',
         endTime: '',
         image: [],
         doc: [],
-        isDone: false, // 是否完成作业
-        isRemind: true,
-        isCollect: true,
-        // 缺少判断是否是班级作业还是个人作业的变量
+        isRemind: true
       },
       rules: {
         course: [
           { 
             required: true, 
-            message: '请输入作业所属课程', 
+            message: '请选择通知所属类型', 
             trigger: ['change','blur']
           }
           // {
@@ -157,14 +148,14 @@ export default {
         title: [
           {
             required: true,
-            message: '请输入作业标题', 
+            message: '请输入通知标题', 
             trigger: ['change','blur']
           }
         ],
         detail: [
           {
             required: true,
-            message: '请输入作业内容',
+            message: '请输入通知内容',
             trigger: ['change','blur']
           }
         ],
@@ -190,34 +181,29 @@ export default {
       switchRemind: false, // 是否使用作业提醒功能
       switchCollect: false, // 是否使用收集作业功能
 
-      showUploadList: false,
-        showImgList: false, 
-        imgLists: [], // 图片的预览列表
+      showUploadList: false, 
         imgPathLists:[],
         docLists: [],
         docPathLists:[],
         upFileUrl: 'http://localhost:3000/job/uploadFile',
+      
+      remindTagList: [
+        { text: '学校通知' },
+        { text: '活动通知' },
+        { text: '比赛通知' },
+        { text: '考试通知' }
+      ],
 
-      isEdit: false,
-      fileList: [
-					{
-						url: '/static/logo.png',
-          },
-          {
-            url: 'http://localhost:3000/upload/image/0409/21/20210409215830.png'
-          }
-				]
+      showRemindTag: false
     }
   },
   onLoad(obj) {
     this.getPageType(Number(obj.pageType))
     this.setTitle()
-    obj.jobId && this.getFormData(obj.jobId) 
+    obj.remindId && this.getFormData(obj.remindId) 
   },
   onReady() {
     this.$refs.uForm.setRules(this.rules)
-    // 获取图片列表
-    this.imgLists = this.$refs.uImg.lists
     // 获取文件列表
     this.docLists = this.$refs.lFile.lists;
   },
@@ -226,8 +212,7 @@ export default {
       return this.form.endTime !== '' ? this.form.endTime : '请选择截止时间'
     },
     submitBtnText() {
-      return this.pageType === 0 && !this.isEdit ? '创建班级作业' : 
-          !this.isEdit ? '创建个人作业' : '修改作业'
+      return this.pageType === 0 ? '发布通知 ' : '修改通知'
     },
     filecolor(type) {
       return (type) => {
@@ -276,30 +261,23 @@ export default {
     submit() {
       // 获取图片的路径
       this.form.image = [...this.imgPathLists]
-      console.log(this.form.image);
-      
       // 获取文件的路径
       if (this.docLists.length) {
         let docPathLists = this.getDocPath()
         this.form.doc = [...docPathLists]
       }
 
-      if (this.pageType === 0 && !this.isEdit) {
-        jobApi.addClassJob(this.form).then(res => {
-          let {code} = res
-          if (code === 0) this.$showToast('添加班级作业成功')
-        })
-      } else if(!this.isEdit){
-        jobApi.addJob(this.form).then(res => {
-          let {code} = res
-          if (code === 0) this.$showToast('添加个人作业成功')
-        })
-      } else {
-        jobApi.updateJob(this.form).then(res => {
-          let {code} = res
-          if (code === 0) this.$showToast('修改作业成功')
-        })
-      }
+      remindApi.addRemind(this.form).then(res => {
+        let {code} = res
+        if (code === 0) this.$showToast('发布通知成功')
+      })
+
+      // else {
+      //   jobApi.addJob(this.form).then(res => {
+      //     let {code} = res
+      //     if (code === 0) this.$showToast('添加个人作业成功')
+      //   })
+      // }
 
       // uni.switchTab({
       //   url: '/pages/home/index'
@@ -317,21 +295,20 @@ export default {
     setTitle() {
       if (this.pageType === 0) {
         uni.setNavigationBarTitle({
-          title:'发布班级作业'
+          title:'发布通知'
         })
       } else {
         uni.setNavigationBarTitle({
-          title:'发布个人作业'
+          title:'修改通知'
         })
       }
     },
-    getFormData(jobId) {
-      this.isEdit = true
-      jobApi.getJob(jobId).then(res => {
+    getFormData(remindId) {
+      console.log(remindId,2222)
+      remindApi.getRemind(remindId).then(res => {
         let {code, data} = res
         if (code === 0) {
           this.form = {...data}
-          this.getImgList()
         }
       })
     },
@@ -366,14 +343,10 @@ export default {
     },
     saveImgPath(data, index) {
       let { realPath } = data
-      let obj = { url: realPath }
-      this.imgPathLists.push(obj)
+      this.imgPathLists.push(realPath)
     },
     deleteImg(index, lists, name){
-      console.log(1111)
       let delPath = this.imgPathLists[index]
-      console.log(this.imgPathLists)
-      console.log(delPath, '删除图片路径')
       let obj = {delPath: delPath}
       jobApi.deleteFile(obj).then(res => {
         let {error_code} = res
@@ -401,12 +374,8 @@ export default {
       })
       return arr
     },
-    getImgList() {
-      let { image } = this.form
-      if (image.length > 0) {
-        this.imgLists = [...image]
-        this.imgPathLists = [...image]
-      }
+    selectRemindTag(index) {
+      this.form.tag = this.remindTagList[index].text
     }
   }
 }
@@ -484,25 +453,5 @@ export default {
     border-radius: 50%;
     z-index: 10;
   }
-
-  .img-box {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		flex-wrap: wrap;
-	}
-
-	.img-item {
-		flex: 0 0 48.5%;
-		border-radius: 10rpx;
-		height: 140rpx;
-		overflow: hidden;
-		position: relative;
-		margin-bottom: 20rpx;
-	}
-
-	.img-item-image {
-		width: 100%;
-		height: 140rpx;
-	}
 </style>
+

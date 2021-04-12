@@ -50,7 +50,25 @@
 			"style": {
 				"navigationBarTitleText": "发布个人作业"
 			}
-    }
+		},
+		{
+			"path": "pages/add/detailJob",
+			"style": {
+				"navigationBarTitleText": "作业详情"
+			}
+		},
+		{
+			"path": "pages/add/addRemind",
+			"style": {
+				"navigationBarTitleText": "发布通知"
+			}
+		},
+		{
+			"path": "pages/add/detailRemind",
+			"style": {
+				"navigationBarTitleText": "通知详情"
+			}
+		}
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "white",

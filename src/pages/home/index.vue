@@ -4,7 +4,7 @@
       <view style="width: 100%;">
         <tabs :list="tabList"
           :is-scroll="false"
-          :current="current"
+          :current="currentTag"
           height="160"
           bar-width="100"
           bar-height="100"
@@ -13,149 +13,104 @@
           inactive-color="#fff"
           @change="change"></tabs>
       </view>
-      <!-- <view class="select_box">
-        <u-input v-model="jobType"
-          class="select_box--input"
-          type="select"
-          border
-          height="50"
-          :custom-style="selectStyle"
-          :select-open="showWorkList"
-          @click="showWorkList = true"/>
-        <u-select 
-          v-model="showWorkList"
-          mode="single-column"
-          :list="workList"
-          :default-value="[0]"
-          @confirm="selectWork"></u-select>
-        <u-input v-model="doneType"
-          class="select_box--input" 
-          type="select"
-          border
-          height="50"
-          :custom-style="selectStyle"
-          :select-open="showDoneList"
-          @click="showDoneList = true"/>
-        <u-select v-model="showDoneList"
-          mode="single-column"
-          :list="doneList"
-          :default-value="[0]"
-          @confirm="selectDone"></u-select>
-      </view> -->
-      <u-dropdown ref="uDropdown" active-color="#5677FC" style="background:#fff;">
-        <u-dropdown-item v-model="jobType" :title="jobTypeTitle" :options="jobOption" @change="change"></u-dropdown-item>
-        <u-dropdown-item v-model="doneType" :title="doneTypeTitle" :options="doneOption"></u-dropdown-item>
+      <u-dropdown ref="uDropdown"
+        active-color="#5677FC"
+        style="background:#fff;"
+        v-show="currentTag === 0">
+        <u-dropdown-item v-model="jobType" :title="jobTypeTitle" :options="jobOption" @change="changeJob"></u-dropdown-item>
+        <u-dropdown-item v-model="doneType" :title="doneTypeTitle" :options="doneOption" @change="changeDone"></u-dropdown-item>
+      </u-dropdown>
+      <u-dropdown ref="uDropdown"
+        active-color="#5677FC"
+        style="background:#fff;"
+        v-show="currentTag === 1">
+        <u-dropdown-item v-model="remindType" :title="remindTypeTitle" :options="remindOption" @change="changeRemind"></u-dropdown-item>
+        <u-dropdown-item v-model="endType" :title="endTypeTitle" :options="endOption" @change="changeEnd"></u-dropdown-item>
+      </u-dropdown>
+      <u-dropdown ref="uDropdown"
+        active-color="#5677FC"
+        style="background:#fff;"
+        v-show="currentTag === 2">
+        <u-dropdown-item v-model="docType" :title="docTypeTitle" :options="docOption" @change="changeDoc"></u-dropdown-item>
+        <!-- <u-dropdown-item v-model="doneType" :title="doneTypeTitle" :options="doneOption" @change="changeDone"></u-dropdown-item> -->
       </u-dropdown>
     </view>
     <view class="content_body">
-      <u-swipe-action btn-width="180" :options="options">
-        <u-card title="计算机网络"
-          padding="20"
-          margin="0"
-          :thumb="thumbSrc"
-          thumb-width="50">
-          <view class="" slot="body">
-            <view class="u-body-item u-flex u-row-between">
-              <view class="u-body-item-title">瓶身描绘的牡丹一如你初妆，冉冉檀香透过窗心事我了然，宣纸上走笔至此搁一半</view>
-              <image src="https://img11.360buyimg.com/n7/jfs/t1/94448/29/2734/524808/5dd4cc16E990dfb6b/59c256f85a8c3757.jpg" mode="aspectFill"></image>
+      <template v-if="currentTag === 0">
+        <u-swipe-action
+          btn-width="180"
+          class="content_item" 
+          v-for="(item, index) in jobLists" 
+          :key="item._id"
+          :index = index
+          @click="swiperClick"
+          :options="item.isDone ?  doneOptions : options">
+          <u-card :title="item.course"
+            padding="20"
+            margin="0"
+            :thumb="item.hasOwnProperty('isDone') ? thumbSrc1 : thumbSrc"
+            thumb-width="50"
+            @click="getJobDetail(index)">
+            <view class="" slot="body">
+              <view class="u-body-item u-flex u-row-between">
+                <view class="u-body-item-content">{{item.detail}}</view>
+                <image src="https://img11.360buyimg.com/n7/jfs/t1/94448/29/2734/524808/5dd4cc16E990dfb6b/59c256f85a8c3757.jpg" mode="aspectFill"></image>
+              </view>
             </view>
-          </view>
-          <view class="u-flex u-row-between" slot="foot">
-            <view class="end_time_text">
-              <u-icon size="34"
-                name="time-copy"
-                custom-prefix="custom-icon"
-                class="u-m-r-5"></u-icon>
-              <span>截止时间：{{subTitle}}</span>
+            <view class="u-flex u-row-between" slot="foot">
+              <view class="end_time_text">
+                <u-icon size="34"
+                  name="time-copy"
+                  custom-prefix="custom-icon"
+                  class="u-m-r-5"></u-icon>
+                <span>截止时间：{{item.endTime}}</span>
+              </view>
+              <view v-if="item.isDone">
+                <u-tag text="已完成" mode="light" type="warning"/>
+              </view>
+              <view v-else>
+                <u-tag v-if="showTagType(item.endTime)" text="未完成" mode="light" type="primary"/>
+                <u-tag v-else text="已截止" mode="light" type="error"/>
+              </view>
             </view>
-            <u-tag text="已完成" mode="light" type="warning"/>
-          </view>
-        </u-card>
-      </u-swipe-action>
-      <u-swipe-action btn-width="180" :options="options">
-        <u-card title="计算机网络"
-          padding="20"
-          margin="0"
-          :thumb="thumbSrc"
-          thumb-width="50">
-          <view class="" slot="body">
-            <view class="u-body-item u-flex u-row-between">
-              <view class="u-body-item-title">瓶身描绘的牡丹一如你初妆，冉冉檀香透过窗心事我了然，宣纸上走笔至此搁一半</view>
-              <image src="https://img11.360buyimg.com/n7/jfs/t1/94448/29/2734/524808/5dd4cc16E990dfb6b/59c256f85a8c3757.jpg" mode="aspectFill"></image>
+          </u-card>
+        </u-swipe-action>
+      </template>
+      <template v-else-if="currentTag === 1">
+        <u-swipe-action
+          btn-width="180"
+          class="content_item" 
+          v-for="(item, index) in remindLists" 
+          :key="item._id"
+          :index = index
+          @click="remindSwiperClick"
+          :options="item.isDone ?  doneOptions : options">
+          <u-card :title="item.tag"
+            padding="20"
+            margin="0"
+            :thumb="thumbSrc2"
+            thumb-width="50"
+            @click="getRemindDetail(index)">
+            <view class="" slot="body">
+              <view class="u-body-item u-flex u-row-between">
+                <view class="u-body-item-content">{{item.detail}}</view>
+                <image src="https://img11.360buyimg.com/n7/jfs/t1/94448/29/2734/524808/5dd4cc16E990dfb6b/59c256f85a8c3757.jpg" mode="aspectFill"></image>
+              </view>
             </view>
-          </view>
-          <view class="u-flex u-row-between" slot="foot">
-            <view class="end_time_text">
-              <u-icon size="32"
-                name="time-copy"
-                custom-prefix="custom-icon"
-                class="u-m-r-5"></u-icon>
-              <span>截止时间：{{subTitle}}</span>
+            <view class="u-flex u-row-between" slot="foot">
+              <view class="end_time_text">
+                <u-icon size="34"
+                  name="time-copy"
+                  custom-prefix="custom-icon"
+                  class="u-m-r-5"></u-icon>
+                <span>截止时间：{{item.endTime}}</span>
+              </view>
+              <u-tag v-if="showTagType(item.endTime)" text="进行中" mode="light" type="primary"/>
+              <u-tag v-else text="已截止" mode="light" type="error"/>
             </view>
-            <u-tag class="u-m-l-40" text="已截止" mode="light" type="error" />
-          </view>
-        </u-card>
-      </u-swipe-action>
-      <u-swipe-action btn-width="180" :options="options">
-        <u-card title="计算机网络"
-          padding="20"
-          margin="0"
-          :thumb="thumbSrc1"
-          thumb-width="50">
-          <view class="" slot="body">
-            <view class="u-body-item u-flex">
-              <view class="u-body-item-title">瓶身描绘的牡丹一如你初妆，冉冉檀香透过窗心事我了然，宣纸上走笔至此搁一半</view>
-              <image src="https://img11.360buyimg.com/n7/jfs/t1/94448/29/2734/524808/5dd4cc16E990dfb6b/59c256f85a8c3757.jpg" mode="aspectFill"></image>
-            </view>
-          </view>
-          <view class="" slot="foot">{{subTitle}}</view>
-        </u-card>
-      </u-swipe-action>
-      <u-swipe-action btn-width="180" :options="options">
-        <u-card title="计算机网络"
-          padding="20"
-          margin="0"
-          :thumb="thumbSrc1"
-          thumb-width="50">
-          <view class="" slot="body">
-            <view class="u-body-item u-flex">
-              <view class="u-body-item-title">瓶身描绘的牡丹一如你初妆，冉冉檀香透过窗心事我了然，宣纸上走笔至此搁一半</view>
-              <image src="https://img11.360buyimg.com/n7/jfs/t1/94448/29/2734/524808/5dd4cc16E990dfb6b/59c256f85a8c3757.jpg" mode="aspectFill"></image>
-            </view>
-          </view>
-          <view class="" slot="foot">{{subTitle}}</view>
-        </u-card>
-      </u-swipe-action>
-      <u-swipe-action btn-width="180" :options="options">
-        <u-card title="计算机网络"
-          padding="20"
-          margin="0"
-          :thumb="thumbSrc2"
-          thumb-width="50">
-          <view class="" slot="body">
-            <view class="u-body-item u-flex">
-              <view class="u-body-item-title">瓶身描绘的牡丹一如你初妆，冉冉檀香透过窗心事我了然，宣纸上走笔至此搁一半</view>
-              <image src="https://img11.360buyimg.com/n7/jfs/t1/94448/29/2734/524808/5dd4cc16E990dfb6b/59c256f85a8c3757.jpg" mode="aspectFill"></image>
-            </view>
-          </view>
-          <view class="" slot="foot">{{subTitle}}</view>
-        </u-card>
-      </u-swipe-action>
-      <u-swipe-action btn-width="180" :options="options">
-        <u-card title="计算机网络"
-          padding="20"
-          margin="0"
-          :thumb="thumbSrc2"
-          thumb-width="50">
-          <view class="" slot="body">
-            <view class="u-body-item u-flex">
-              <view class="u-body-item-title">瓶身描绘的牡丹一如你初妆，冉冉檀香透过窗心事我了然，宣纸上走笔至此搁一半</view>
-              <image src="https://img11.360buyimg.com/n7/jfs/t1/94448/29/2734/524808/5dd4cc16E990dfb6b/59c256f85a8c3757.jpg" mode="aspectFill"></image>
-            </view>
-          </view>
-          <view class="" slot="foot">{{subTitle}}</view>
-        </u-card>
-      </u-swipe-action>
+          </u-card>
+        </u-swipe-action>
+      </template>
     </view>
     <view class="content_footer">
       <u-tabbar :list="tabbarList" 
@@ -180,19 +135,12 @@
   import tabs from '../../components/tabs/tabs' 
   import floatBtn from '../../components/floatBtn'
   import addJobSheetMixins from '../../common/js/addJobSheetMixins'
+  import {jobApi, remindApi} from '@/api/api'
 	export default {
     mixins: [addJobSheetMixins],
     components: {
       tabs,
       floatBtn
-    },
-    computed: {
-      jobTypeTitle() {
-        return this.jobOption[this.jobType].label
-      },
-      doneTypeTitle() {
-        return this.doneOption[this.doneType].label
-      }
     },
 		data() {
 			return {
@@ -211,7 +159,7 @@
             selectedImgPath: '/static/image/tabs/document_fill.png'
           }
         ],
-				current: 0,
+				currentTag: 0,
         tabbarList: [],
         showWorkList: false,
         showDoneList: false,
@@ -253,6 +201,9 @@
         ],
         jobType: 0,
         doneType: 0,
+        remindType: 0,
+        endType: 0,
+        docType: 0,
         selectStyle: {
           color: '#515151'
         },
@@ -290,13 +241,71 @@
           {
 						label: '已截止',
 						value: 4,
+					}
+        ],
+        remindOption: [
+          {
+						label: '全部',
+						value: 0,
 					},
-				],
+					{
+						label: '学校通知',
+						value: 1,
+          },
+          {
+						label: '活动通知',
+						value: 2,
+          },
+          {
+						label: '比赛通知',
+						value: 3,
+          },
+          {
+						label: '考试通知',
+						value: 4,
+					}
+        ],
+        endOption: [
+                    {
+						label: '全部',
+						value: 0,
+					},
+					{
+						label: '进行中',
+						value: 1,
+          },
+          {
+						label: '已截止',
+						value: 2,
+					}
+        ],
+        docOption: [
+          {
+            label: '全部',
+            value: 0,
+          },
+          {
+            label: 'doc',
+            value: 1,
+          },
+          {
+            label: 'docx',
+            value: 2,
+          },
+          {
+            label: 'pdf',
+            value: 3,
+          },
+          {
+            label: 'txt',
+            value: 4,
+          }
+        ],
         title: '素胚勾勒出青花，笔锋浓转淡',
         subTitle: '2020-05-15 10:09',
         thumbSrc: '/static/image/card/class.png',
         thumbSrc1: '/static/image/card/person.png',
-        thumbSrc2: '/static/image/card/class.png',
+        thumbSrc2: '/static/image/card/remind.png',
         showAddWork: false,
         sheetList: [
           { text: '班级作业' },
@@ -322,15 +331,73 @@
 						}
 					}
         ],
-        showFloatBtn: false
+        doneOptions: [
+					{
+						text: '编辑',
+						style: {
+							backgroundColor: '#5677FC'
+						}
+          },
+          {
+						text: '未完成',
+						style: {
+							backgroundColor: '#909399'
+						}
+					},
+					{
+						text: '删除',
+						style: {
+							backgroundColor: '#F56C6C'
+						}
+					}
+        ],
+        showFloatBtn: false,
+        jobLists: [],
+        classJobLists: [],
+        perJobLists:  [],
+        selectedJobList: [], // 下拉框筛选存储栈
+        remindLists: []
 			}
-		},
+    },
+    
 		onLoad() {
       this.getTabbarList()
       this.addScorllListener()
+
+      // 获取作业列表
+      this.getJobLists()
+      
+      // 获取通知列表
+      this.getRemindLists()
+      // this.getNowTime()
     },
     onUnload() {
       this.removeScorllListener()
+    },
+    computed: {
+      jobTypeTitle() {
+        return this.jobOption[this.jobType].label
+      },
+      doneTypeTitle() {
+        return this.doneOption[this.doneType].label
+      },
+      remindTypeTitle() {
+        return this.remindOption[this.remindType].label
+      },
+      endTypeTitle() {
+        return this.endOption[this.endType].label
+      },
+      docTypeTitle() {
+        return this.docOption[this.docType].label
+      },
+      showTagType(endTime) {
+        return endTime => {
+          let time = new Date()
+          let end_Time = new Date(endTime)
+          let done = time < end_Time
+          return done
+        }
+      }
     },
 		methods: {
       getTabbarList() {
@@ -343,7 +410,7 @@
         window.removeEventListener('scroll', this.scrollToTop)
       },
       change(index) {
-				this.current = index;
+				this.currentTag = index;
       },
       selectWork(e) {
         this.jobType = e[0].label
@@ -386,8 +453,184 @@
           // 将总长度设置为一半，并且时间从当前开始递减，对图像进行垂直向上平移
           return -c / 2 * (--t * (t - 2) - 1) + b
         }
+      },
+      async getJobLists() {
+        await this.getClassJobLists()
+        await this.getPersonJobLists()
+        let  { classJobLists, perJobLists } = this
+        this.jobLists = classJobLists.concat(perJobLists)
+      },
+      // 获取个人作业列表
+      async getPersonJobLists() {
+        await jobApi.getJobLists().then(res => {
+          let {code, data} = res
+          if (code === 0) {
+            this.perJobLists = [...data]
+          }
+        })
+      },
+      // 获取班级作业列表
+      async getClassJobLists() {
+        await jobApi.getClassJobLists().then(res => {
+          let {code, data} = res
+          if (code === 0) {
+            this.classJobLists = [...data]
+          }
+        })
+      },
+      getJobDetail(index) {
+        let { _id: id } = this.jobLists[index]
+        uni.navigateTo({
+          url: `/pages/add/detailJob?id=${id}`
+        })
+      },
+      getRemindDetail(index) {
+        let { _id: id } = this.remindLists[index]
+        uni.navigateTo({
+          url: `/pages/add/detailRemind?id=${id}`
+        })
+      },
+      // getNowTime() {
+      //   let time = new Date()
+      //   console.log(time, '获取时间')
+      //   let endTimes = new Date('2021-03-17 14:33')
+      //   console.log(endTimes, '截止时间')
+      //   console.log(time > endTimes) 
+      // },
+      /**
+       * index: jobLists列表索引
+       * index1: optionList列表索引
+       */
+      swiperClick(index, index1) {
+        let { _id: id, isDone } = this.jobLists[index]
+        
+        if (index1 === 2) {
+
+          jobApi.deleteJob({id: id}).then(res => {
+            if (res.code === 0) this.getJobLists()
+          })
+
+        } else if (index1 === 1) {
+
+          let obj = {
+            id: id,
+            isDone: !isDone
+          }
+
+          jobApi.doneJob(obj).then(res => {
+            let {code} = res
+            if (code === 0) {
+              this.getJobLists()
+            }
+          })
+
+        } else {         
+          uni.navigateTo({
+            url: `/pages/add/addJob?jobId=${id}`
+          })
+        }
+      },
+      remindSwiperClick(index, index1) {
+        let { _id: id, isDone } = this.remindLists[index]
+        
+        if (index1 === 2) {
+
+          remindApi.deleteRemind({id: id}).then(res => {
+            if (res.code === 0) this.getRemindLists()
+          })
+
+        } else if (index1 === 1) {
+
+          let obj = {
+            id: id,
+            isDone: !isDone
+          }
+
+          jobApi.doneJob(obj).then(res => {
+            let {code} = res
+            if (code === 0) {
+              this.getJobLists()
+            }
+          })
+
+        } else {         
+          uni.navigateTo({
+            url: `/pages/add/addRemind?remindId=${id}`
+          })
+        }
+      },
+      changeJob(index) {
+        this.changeJobList(this.jobType, this.doneType)
+      },
+      changeDone(index) {
+        this.changeJobList(this.jobType, this.doneType)
+      },
+      changeRemind(index) {
+        console.log('改变通知类型')
+      },
+      changeEnd(index) {
+        console.log('改变通知截止类型')
+      },
+      changeDoc(index) {
+        console.log('改变选取文档类型')
+      },
+      async changeJobList(jobType, doneType) {
+        switch(jobType) {
+          case 1:
+            this.jobLists = [...this.classJobLists]
+            break
+          case 2:
+            this.jobLists = [...this.perJobLists]
+            break
+          default:
+            await this.getJobLists()
+        }
+
+        if (doneType !== 0) {
+          let time = new Date()
+          let doingJob = [], doneJob = [],
+              undonejob = [], endJob = []
+
+          this.jobLists.forEach(item => {
+            let endTime = new Date(item.endTime)
+            if (time < endTime && !item.isDone) {
+              doingJob.push(item)
+            } else if(time >= endTime && !item.isDone){
+              endJob.push(item)
+            }
+
+            if (item.isDone) {
+              doneJob.push(item)
+            } else {
+              undonejob.push(item)
+            }
+          }) 
+
+          switch(doneType) {
+            case 1:
+              this.jobLists = [...doingJob]
+              break
+            case 2:
+              this.jobLists = [...undonejob]
+              break
+            case 3:
+              this.jobLists = [...doneJob]
+              break
+            case 4: 
+              this.jobLists = [...endJob]
+          }
+        }
+      },
+      async getRemindLists() {
+        await remindApi.getRemindLists().then(res => {
+          let {code, data} = res
+          if (code === 0) {
+            this.remindLists = [...data]
+          }
+          console.log(this.remindLists, '通知列表')
+        })
       }
-		}
+    }
 	}
 </script>
 
@@ -445,5 +688,12 @@
       margin-top: 4rpx;
     }
   }
+}
+
+.u-body-item-content {
+  height: 120rpx;
+  line-height: 60rpx;
+  overflow: hidden;
+  text-overflow:ellipsis;
 }
 </style>
