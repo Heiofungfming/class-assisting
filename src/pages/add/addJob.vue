@@ -46,11 +46,6 @@
             @confirm="getEndTime"></u-picker>
         </u-form-item>
         <u-form-item label="作业配图" prop="image">
-          <!-- <view class="img-box" v-if="!showImgList">
-            <view class="img-item" v-for="(item, index) in imgPathLists" :key="index">
-              <img class="img-item-image" :src="item.url" mode="aspectFill">
-            </view>
-          </view> -->
           <u-upload ref="uImg"
             :action="actionURL" 
             :auto-upload="true"
@@ -59,7 +54,6 @@
             @on-success="saveImgPath"
             @on-remove="deleteImg"></u-upload>
         </u-form-item>
-        {{imgPathLists}}
         <u-form-item label="作业附件" 
           prop="doc">
           <!-- 添加文件预览 开始-->
@@ -232,23 +226,23 @@ export default {
     filecolor(type) {
       return (type) => {
         let color = '#3a80fc'
-      switch(type) {
-        case 'doc':
-        case 'docx':
-          break
-        case 'xml':
-          color = '#039e55'
-          break
-        case 'pdf':
-          color = '#d93838'
-          break
-        case 'ppt':
-          color = '#f34e19'
-          break
-        case 'zip':
-          color = '#808a7f'
-          break
-      }
+        switch(type) {
+          case 'doc':
+          case 'docx':
+            break
+          case 'xml':
+            color = '#039e55'
+            break
+          case 'pdf':
+            color = '#d93838'
+            break
+          case 'ppt':
+            color = '#f34e19'
+            break
+          case 'zip':
+            color = '#808a7f'
+            break
+        }
       return color
       }
     },

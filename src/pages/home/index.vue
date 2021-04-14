@@ -111,6 +111,27 @@
           </u-card>
         </u-swipe-action>
       </template>
+
+      <template v-else>
+        <view class="doc-box">
+          <view class="doc-item" v-for="(item, index) in docLists" :key="index">
+            <u-icon size="80"
+              :name="item.fileExt === 'docx' ? 'doc' : item.fileExt"
+              custom-prefix="custom-icon"
+              :color="filecolor(item.fileExt)"
+              class="u-m-r-5"></u-icon>
+            <view class="doc-item-content">
+              <view class="doc-item-title">{{item.name}}</view>
+              <view class="doc-item-ext">
+                <view class="doc-item-size">{{item.size}}</view>
+                <view>{{item.date}}</view>
+              </view>
+            </view>
+          </view>
+          <!-- <web-view :webview-styles="webviewStyles" src="http://localhost:3000/upload/file/0412/21/20210412210359.pdf"></web-view> -->
+          <iframe src="https://docs.google.com/viewer"></iframe>
+        </view>
+      </template>
     </view>
     <view class="content_footer">
       <u-tabbar :list="tabbarList" 
@@ -356,7 +377,36 @@
         classJobLists: [],
         perJobLists:  [],
         selectedJobList: [], // 下拉框筛选存储栈
-        remindLists: []
+        remindLists: [],
+        docLists: [
+          {
+            name: '操作系统',
+            size: '222.0KB',
+            date: '2021-01-01',
+            fileExt: 'doc',
+            url: 'http://localhost/upload/file/0412/21/20210412210350.doc'
+          },
+          {
+            name: '操作系统',
+            size: '222.0KB',
+            date: '2021-01-01',
+            fileExt: 'pdf',
+            url: 'http://localhost/upload/file/0412/21/20210412210350.doc'
+          },
+          {
+            name: '操作系统操作系统操作系统操作系统操作系统操作系统操作系统操作系统操作系统操作系统',
+            size: '222.0KB',
+            date: '2021-01-01',
+            fileExt: 'txt',
+            url: 'http://localhost/upload/file/0412/21/20210412210350.doc'
+          }
+        ],
+        // 预览文件弹窗样式
+        webviewStyles: {
+                    progress: {
+                        color: '#FF3333'
+                    }
+                }
 			}
     },
     
@@ -397,7 +447,31 @@
           let done = time < end_Time
           return done
         }
+      },
+      // 存在复用 需通过mixin组合
+      filecolor(type) {
+      return (type) => {
+        let color = '#3a80fc'
+        switch(type) {
+          case 'doc':
+          case 'docx':
+            break
+          case 'xml':
+            color = '#039e55'
+            break
+          case 'pdf':
+            color = '#d93838'
+            break
+          case 'ppt':
+            color = '#f34e19'
+            break
+          case 'zip':
+            color = '#808a7f'
+            break
+        }
+      return color
       }
+    },
     },
 		methods: {
       getTabbarList() {
@@ -696,4 +770,50 @@
   overflow: hidden;
   text-overflow:ellipsis;
 }
+
+.doc-box {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+	.doc-item {
+		flex: 0 0 48.5%;
+    width: 100%;
+		height: 300rpx;
+		/* overflow: hidden; */
+		position: relative;
+    margin-top: 10rpx;
+    padding: 20rpx 40rpx;
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+	}
+
+  .doc-item-content {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 20rpx;
+  }
+  .doc-item-title {
+    flex: 1;
+    width: 500rpx;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .doc-item-ext{
+    flex: 1;
+    display: flex;
+  }
+
+  .doc-item-ext view{
+    margin-right: 20rpx;
+  }
+
 </style>

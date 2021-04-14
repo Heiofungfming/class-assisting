@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-03-22 21:34:40
- * @LastEditTime: 2021-04-12 10:20:47
+ * @LastEditTime: 2021-04-12 18:20:19
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\add\detailJob.vue
@@ -28,9 +28,15 @@
 			</view>
 			<view class="content_item">
 				<label>作业配图</label>
-				<view v-for="(item, index) in imgArray" :key="index" :index="index">
+				<!-- <view v-for="(item, index) in imgArray" :key="index" :index="index">
 					<img :src="`${item}`" alt="">
-				</view>
+				</view> -->
+				<u-upload ref="uImg"
+					custom-btn
+					:deletable="false"
+					:show-progress="false"
+          del-bg-color="#8a8a8a"
+          :file-list="jobData.image"></u-upload>
 			</view>
 			<view class="content_item">
 				<label>作业文件</label>
