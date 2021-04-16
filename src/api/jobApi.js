@@ -1,12 +1,13 @@
 /*
  * @Author: your name
  * @Date: 2021-03-03 23:43:20
- * @LastEditTime: 2021-04-07 00:37:08
+ * @LastEditTime: 2021-04-16 10:43:09
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\api\jobApi.js
  */
-import {request} from './request'
+// import {request} from './request'
+import request from './uniRequest'
 
 export default {
 

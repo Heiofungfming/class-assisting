@@ -1,12 +1,13 @@
 /*
  * @Author: your name
  * @Date: 2021-04-06 18:19:46
- * @LastEditTime: 2021-04-06 22:56:37
+ * @LastEditTime: 2021-04-16 10:41:39
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\api\remindApi.js
  */
-import {request} from './request'
+// import {request} from './request'
+import request from './uniRequest'
 
 export default {
 

@@ -1,3 +1,11 @@
+<!--
+ * @Author: your name
+ * @Date: 2021-04-15 21:25:24
+ * @LastEditTime: 2021-04-15 22:08:32
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \class-assisting\src\pages\login\index.vue
+-->
 <template>
 	<view class="content">
     <view class="wrap">
@@ -45,7 +53,23 @@ export default {
     }
   },
   onLoad() {
-
+    uni.request({
+      url: 'http://localhost:3000/job/getJobLists',
+      method:'GET',
+      success: (res) => {
+        console.log(res.data, '作业列表')
+      }
+    })
+  //   uni.request({
+  //     url: 'https://www.example.com/request', //仅为示例，并非真实接口地址。
+  //     header: {
+  //         'custom-header': 'hello' //自定义请求头信息
+  //     },
+  //     success: (res) => {
+  //         console.log(res.data);
+  //         this.text = 'request success';
+  //     }
+  // });
   },
   methods: {
     addClass() {

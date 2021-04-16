@@ -127,9 +127,16 @@
                 <view>{{item.date}}</view>
               </view>
             </view>
+            <view class="doc-item-handler">
+            <u-icon size="46"
+              name="downland"
+              custom-prefix="custom-icon"
+              class="u-m-r-5"></u-icon>
+            <!-- <u-icon size="46"
+              name="view"
+              custom-prefix="custom-icon"></u-icon> -->
+            </view>
           </view>
-          <!-- <web-view :webview-styles="webviewStyles" src="http://localhost:3000/upload/file/0412/21/20210412210359.pdf"></web-view> -->
-          <iframe src="https://docs.google.com/viewer"></iframe>
         </view>
       </template>
     </view>
@@ -411,8 +418,9 @@
     },
     
 		onLoad() {
+
       this.getTabbarList()
-      this.addScorllListener()
+      // this.addScorllListener()
 
       // 获取作业列表
       this.getJobLists()
@@ -422,7 +430,7 @@
       // this.getNowTime()
     },
     onUnload() {
-      this.removeScorllListener()
+      // this.removeScorllListener()
     },
     computed: {
       jobTypeTitle() {
@@ -477,12 +485,12 @@
       getTabbarList() {
         this.tabbarList = [...this.$store.state.tabbarList]
       },
-      addScorllListener() {
-        window.addEventListener('scroll', this.scrollToTop)
-      },
-      removeScorllListener() {
-        window.removeEventListener('scroll', this.scrollToTop)
-      },
+      // addScorllListener() {
+      //   window.addEventListener('scroll', this.scrollToTop)
+      // },
+      // removeScorllListener() {
+      //   window.removeEventListener('scroll', this.scrollToTop)
+      // },
       change(index) {
 				this.currentTag = index;
       },
@@ -531,17 +539,33 @@
       async getJobLists() {
         await this.getClassJobLists()
         await this.getPersonJobLists()
-        let  { classJobLists, perJobLists } = this
-        this.jobLists = classJobLists.concat(perJobLists)
+        console.log('result0')
+      //   Promise.all([this.getClassJobLists(),this.getPersonJobLists()]).then(result => {
+      //     console.log('result')
+      //     let  { classJobLists, perJobLists } = this
+      //     this.jobLists = classJobLists.concat(perJobLists)
+      //   })
+       let  { classJobLists, perJobLists } = this
+          this.jobLists = classJobLists.concat(perJobLists)
       },
       // 获取个人作业列表
       async getPersonJobLists() {
+        console.log(111111);
         await jobApi.getJobLists().then(res => {
+          console.log(2222222);
+          console.log(res)
           let {code, data} = res
           if (code === 0) {
             this.perJobLists = [...data]
           }
         })
+        // let res = await jobApi.getJobLists()
+        // console.log(2222222);
+        //   console.log(res)
+        //   let {code, data} = res
+        //   if (code === 0) {
+        //     this.perJobLists = [...data]
+        //   }
       },
       // 获取班级作业列表
       async getClassJobLists() {
@@ -782,7 +806,7 @@
 	.doc-item {
 		flex: 0 0 48.5%;
     width: 100%;
-		height: 300rpx;
+		height: 150rpx;
 		/* overflow: hidden; */
 		position: relative;
     margin-top: 10rpx;
@@ -801,10 +825,14 @@
   }
   .doc-item-title {
     flex: 1;
-    width: 500rpx;
+    width: 450rpx;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+  }
+
+  .doc-item-handler {
+    display: flex;
   }
 
   .doc-item-ext{
