@@ -131,7 +131,8 @@
             <u-icon size="46"
               name="downland"
               custom-prefix="custom-icon"
-              class="u-m-r-5"></u-icon>
+              class="u-m-r-5"
+              @click="download(item.url)"></u-icon>
             <!-- <u-icon size="46"
               name="view"
               custom-prefix="custom-icon"></u-icon> -->
@@ -391,21 +392,21 @@
             size: '222.0KB',
             date: '2021-01-01',
             fileExt: 'doc',
-            url: 'http://localhost/upload/file/0412/21/20210412210350.doc'
+            url: 'http://localhost:3000/upload/file/0412/21/20210412210350.doc'
           },
           {
             name: '操作系统',
             size: '222.0KB',
             date: '2021-01-01',
             fileExt: 'pdf',
-            url: 'http://localhost/upload/file/0412/21/20210412210350.doc'
+            url: 'http://localhost:3000/upload/file/0412/21/20210412210350.doc'
           },
           {
             name: '操作系统操作系统操作系统操作系统操作系统操作系统操作系统操作系统操作系统操作系统',
             size: '222.0KB',
             date: '2021-01-01',
             fileExt: 'txt',
-            url: 'http://localhost/upload/file/0412/21/20210412210350.doc'
+            url: 'http://localhost:3000/upload/file/0412/21/20210412210350.doc'
           }
         ],
         // 预览文件弹窗样式
@@ -418,7 +419,6 @@
     },
     
 		onLoad() {
-
       this.getTabbarList()
       // this.addScorllListener()
 
@@ -539,33 +539,17 @@
       async getJobLists() {
         await this.getClassJobLists()
         await this.getPersonJobLists()
-        console.log('result0')
-      //   Promise.all([this.getClassJobLists(),this.getPersonJobLists()]).then(result => {
-      //     console.log('result')
-      //     let  { classJobLists, perJobLists } = this
-      //     this.jobLists = classJobLists.concat(perJobLists)
-      //   })
        let  { classJobLists, perJobLists } = this
           this.jobLists = classJobLists.concat(perJobLists)
       },
       // 获取个人作业列表
       async getPersonJobLists() {
-        console.log(111111);
         await jobApi.getJobLists().then(res => {
-          console.log(2222222);
-          console.log(res)
           let {code, data} = res
           if (code === 0) {
             this.perJobLists = [...data]
           }
         })
-        // let res = await jobApi.getJobLists()
-        // console.log(2222222);
-        //   console.log(res)
-        //   let {code, data} = res
-        //   if (code === 0) {
-        //     this.perJobLists = [...data]
-        //   }
       },
       // 获取班级作业列表
       async getClassJobLists() {
@@ -725,7 +709,36 @@
           if (code === 0) {
             this.remindLists = [...data]
           }
-          console.log(this.remindLists, '通知列表')
+        })
+      },
+      download(url) {
+        uni.downloadFile({
+          url: url,
+          success: (data) => {
+            if (data.statusCode === 200) {
+              // 文件保存到本地
+              uni.saveFile({
+                tempFilePath: data.tempFilePath, // 临时路径
+                success: function(res) {
+                  uni.showToast({
+                    icon: 'none',
+                    mask: true,
+                    title: '文件已保存:' + res.savedFilePath,
+                    duration: 3000
+                  })
+                  setTimeout(() => {
+                    // 打开文档查看
+                    uni.openDocument({
+                      filePath: res.savedFilePath,
+                      success: function(res) {
+                        console.log('打开文档成功')
+                      }
+                    })
+                  }, 3000)
+                }
+              })
+            }
+          }
         })
       }
     }

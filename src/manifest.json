@@ -47,6 +47,21 @@
 			},
 			"sdkConfigs": { /* SDK配置 */
 
+			},
+			"h5": {
+				"devServer": {
+					"disableHostCheck": true,
+					"proxy": {
+						"/api": {
+							"target": "http://localhost:3000",
+							"changeOrigin": true,
+							"secure": false,
+							"pathRewrite": {
+								"^/api": ""
+							} 
+						}
+					}
+				}
 			}
 		}
 	},
