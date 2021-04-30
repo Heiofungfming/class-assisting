@@ -1,8 +1,8 @@
 <!--
  * @Author: your name
  * @Date: 2021-01-19 21:32:23
- * @LastEditTime: 2021-02-21 10:18:58
- * @LastEditors: your name
+ * @LastEditTime: 2021-04-30 16:24:24
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\class\joinClass.vue
 -->
@@ -37,10 +37,12 @@
 
 <script>
 import mixins from '@/common/js/mixins'
+import {classApi, studentApi} from '@/api/api'
 export default {
   mixins: [mixins],
   data() {
     return {
+      openId: '',
       form: {
         name: '',
         key: '',
@@ -66,11 +68,56 @@ export default {
   onLoad() {
 
   },
+  onReady() {
+    this.openId = uni.getStorageSync('openId')
+  },
   methods: {
     submit() {
-      console.log('加入班级');
-      uni.switchTab({
-        url: '/pages/home/index'
+      classApi.checkPassword(this.form).then(res => {
+
+        if (res.code === -1) {
+          this.$showToast('所加入班级不存在')
+          throw new Error('所加入班级不存在')
+        }
+
+        if (res.code === -2) {
+          this.$showToast('密码错误，请重新输入')
+          this.form.key = ''
+          throw new Error('密码错误，请重新输入')
+        }
+        
+        return Promise.resolve(res.code)
+      }).then(code => {
+
+        if (code === 0) {
+          let obj = {
+            openId: this.openId,
+            name: this.form.name
+          }
+
+          studentApi.updateJoinClass(obj).then(res => {
+            if (res.code === -1) {
+              this.$showToast('已加入该班级')
+              throw new Error('已加入该班级')
+            }
+
+            return Promise.resolve(obj)
+
+          }).then(obj => {
+            classApi.joinClass(obj).then(res => {
+              if (res.code === 0) {
+                this.$showToast('加入班级成功')
+                uni.switchTab({
+                  url: '/pages/home/index'
+                })
+              } else this.$showToast('加入班级失败')
+            })
+          }).catch(err => {
+            console.log(err)
+          })
+        }
+      }).catch(err => {
+        console.log(err)
       })
     }
   }

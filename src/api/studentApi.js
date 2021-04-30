@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-16 22:08:03
- * @LastEditTime: 2021-04-29 23:19:35
+ * @LastEditTime: 2021-04-30 15:11:29
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\api\studentApi.js
@@ -31,4 +31,11 @@ export default {
       data: params
     })
   },
+  updateJoinClass(params) {
+    return request({
+      url: '/student/updateJoinClass',
+      method: 'POST',
+      data: params
+    })
+  }
 }

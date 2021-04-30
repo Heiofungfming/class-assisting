@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-04-15 21:25:24
- * @LastEditTime: 2021-04-29 14:19:51
+ * @LastEditTime: 2021-04-30 11:29:51
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\login\index.vue
@@ -80,7 +80,8 @@ export default {
     // this.getOAuth()
     uni.getStorageInfo({
       success: res => {
-        if (res.userInfo && res.openId && res.accessToken) {
+        let keys = res.keys
+        if (keys.includes('userInfo') && keys.includes('openId') && keys.includes('accessToken')) {
           uni.switchTab({
             url: '/pages/home/index'
           })

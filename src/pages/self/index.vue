@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-01-19 21:32:23
- * @LastEditTime: 2021-04-25 13:43:37
+ * @LastEditTime: 2021-04-30 15:25:38
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\self\index.vue
@@ -59,7 +59,7 @@
 						custom-prefix="custom-icon"
 						class="u-m-r-5"></u-icon>
 				</u-cell-item>
-				<u-cell-item  title="加入班级">
+				<u-cell-item  title="加入班级" @click="joinClass">
 					<u-icon slot="icon"
 					  size="34"
 					  name="addpeople"
@@ -147,6 +147,11 @@ import addJobSheetMixins from '../../common/js/addJobSheetMixins'
 					success: function(res) {
 						console.log(res, '订阅请求')
 					}
+				})
+			},
+			joinClass() {
+				uni.navigateTo({
+					url: '/pages/class/joinClass'
 				})
 			}
 		}
