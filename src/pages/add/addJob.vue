@@ -111,7 +111,7 @@
 <script>
 import mixins from '@/common/js/mixins'
 import uploadFile from '../../components/uploadFile'
-import {jobApi} from '@/api/api'
+import {jobApi, studentApi} from '@/api/api'
 export default {
   mixins: [mixins],
   components: {
@@ -120,6 +120,7 @@ export default {
   data() {
     return {
       pageType: '', // 页面类型
+      openId: '',
       form: {
         course: '',
         title: '',
@@ -214,6 +215,8 @@ export default {
     this.imgLists = this.$refs.uImg.lists
     // 获取文件列表
     this.docLists = this.$refs.lFile.lists;
+    // 获取用户的openId
+    this.openId = uni.getStorageSync('openId')
   },
   computed: {
     endTimeText() {
@@ -285,8 +288,15 @@ export default {
         })
       } else if(!this.isEdit){
         jobApi.addJob(this.form).then(res => {
-          let {code} = res
-          if (code === 0) this.$showToast('添加个人作业成功')
+          let {code, jobId} = res
+          const obj = {
+            openId: this.openId,
+            jobId: jobId
+          }
+          // console.log(obj,'------------')
+          studentApi.updateAddJob(obj).then(res => {
+            if (res.code === 0) this.$showToast('添加个人作业成功')
+          })
         })
       } else {
         jobApi.updateJob(this.form).then(res => {

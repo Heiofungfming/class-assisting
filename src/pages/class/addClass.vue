@@ -53,7 +53,7 @@
 
 <script>
 import mixins from '@/common/js/mixins'
-import {classApi} from '@/api/api'
+import {classApi, studentApi} from '@/api/api'
 export default {
   mixins: [mixins],
   data() {
@@ -63,8 +63,11 @@ export default {
         academy: '',
         grade: '',
         major: '',
+        fullName: '',
         class: '',
         key: '',
+        students: [], // 班级学生
+        adminor: [] // 班级管理员
       },
       rules: {
         school: [
@@ -162,15 +165,31 @@ export default {
     this.$refs.uForm.setRules(this.rules)
   },
   methods: {
-    submit() {
-      console.log(classApi)
-      
-      let data = classApi.addClass(this.form).then(res => {
+    async submit() {
+      let { school, academy, grade, major, } = this.form
+      const fullName = school + academy + grade + major + this.form.class
+      const openId = uni.getStorageSync('openId')
+      this.form.students.push(openId)
+      this.form.adminor.push(openId)
+      await classApi.addClass(this.form).then(res => {
         console.log(res)
+        if (res.code === 1) {
+          this.$showToast('该班级已存在')
+        } else if (res.code === -1) {
+          this.$showToast('添加班级失败')
+        } else {
+          let obj = {
+            openId: openId,
+            className: fullName
+          }
+          studentApi.updateAddClass(obj).then(res => {
+            console.log(res, '更改用户信息成功')
+          })
+          uni.switchTab({
+            url: '/pages/home/index'
+          })
+        }
       })
-
-      
-
       // this.$refs.uForm.validate(valid => {
 			// 	if (valid) {
 			// 		console.log('验证通过');
@@ -181,7 +200,11 @@ export default {
       // uni.switchTab({
       //   url: '/pages/home/index'
       // })
-    }
+    },
+    // updateAddClass() {
+    //   const openId = uni.getStorageSync('openId') 
+    //   studentApi.updateAddClass()
+    // }
   }
 }
 </script>

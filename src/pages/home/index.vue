@@ -128,16 +128,17 @@
               </view>
             </view>
             <view class="doc-item-handler">
-            <u-icon size="46"
-              name="downland"
-              custom-prefix="custom-icon"
-              class="u-m-r-5"
-              @click="download(item.url)"></u-icon>
-            <!-- <u-icon size="46"
-              name="view"
-              custom-prefix="custom-icon"></u-icon> -->
+				<u-icon size="46"
+				  name="downland"
+				  custom-prefix="custom-icon"
+				  class="u-m-r-5"
+				  @click="download(item.url)"></u-icon>
+				<!-- <u-icon size="46"
+				  name="view"
+				  custom-prefix="custom-icon"></u-icon> -->
             </view>
           </view>
+		      <!-- <u-button @click="showDoc"></u-button> -->
         </view>
       </template>
     </view>
@@ -148,11 +149,11 @@
       inactive-color="#333333"
       :before-switch="switchAdd"></u-tabbar>
     </view>
-    <float-btn custom v-show="showFloatBtn" @click="backToTop">
+    <!-- <float-btn custom v-show="showFloatBtn" @click="backToTop">
       <slot>
         <u-icon size="50" name="arrow-upward"></u-icon>
       </slot>
-    </float-btn>
+    </float-btn> -->
     <u-action-sheet :list="sheetList" 
       v-model="showAddWork"
       border-radius="20"
@@ -162,14 +163,14 @@
 
 <script>
   import tabs from '../../components/tabs/tabs' 
-  import floatBtn from '../../components/floatBtn'
+  // import floatBtn from '../../components/floatBtn'
   import addJobSheetMixins from '../../common/js/addJobSheetMixins'
   import {jobApi, remindApi} from '@/api/api'
 	export default {
     mixins: [addJobSheetMixins],
     components: {
       tabs,
-      floatBtn
+      // floatBtn
     },
 		data() {
 			return {
@@ -500,25 +501,25 @@
       selectDone(e) {
         this.doneType = e[0].label
       },
-      scrollToTop() {
-        let scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
-        this.showFloatBtn = scrollTop > 130
-      },
-      backToTop() {
-        let distanceY = window.pageYOffset
-        let i = 0
-        let interval = null
-        interval = setInterval(() => {
-          let next = Math.floor(this.easeInOutquad(10 * i, distanceY, -distanceY, 500))
-          if (next <= 0) {
-            window.scrollTo(0, 0)
-            clearInterval(interval)
-          } else {
-            window.scrollTo(0, next)
-          }
-          i++
-        }, 17)
-      },
+      // scrollToTop() {
+      //   let scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
+      //   this.showFloatBtn = scrollTop > 130
+      // },
+      // backToTop() {
+      //   let distanceY = window.pageYOffset
+      //   let i = 0
+      //   let interval = null
+      //   interval = setInterval(() => {
+      //     let next = Math.floor(this.easeInOutquad(10 * i, distanceY, -distanceY, 500))
+      //     if (next <= 0) {
+      //       window.scrollTo(0, 0)
+      //       clearInterval(interval)
+      //     } else {
+      //       window.scrollTo(0, next)
+      //     }
+      //     i++
+      //   }, 17)
+      // },
       /**
        * @description: 缓动公式（Tween算法）
        * @param {*} t 动画已经执行的时间（实际上执行多少次/帧数）
@@ -711,38 +712,46 @@
           }
         })
       },
-      download(url) {
-        uni.downloadFile({
-          url: url,
-          success: (data) => {
-            if (data.statusCode === 200) {
-              // 文件保存到本地
-              uni.saveFile({
-                tempFilePath: data.tempFilePath, // 临时路径
-                success: function(res) {
-                  uni.showToast({
-                    icon: 'none',
-                    mask: true,
-                    title: '文件已保存:' + res.savedFilePath,
-                    duration: 3000
+    download(url) {
+      uni.downloadFile({
+        url: url,
+        success: (data) => {
+          if (data.statusCode === 200) {
+            // 文件保存到本地
+            uni.saveFile({
+              tempFilePath: data.tempFilePath, // 临时路径
+              success: function(res) {
+                uni.showToast({
+                  icon: 'none',
+                  mask: true,
+                  title: '文件已保存:' + res.savedFilePath,
+                  duration: 3000
+                })
+                setTimeout(() => {
+                  // 打开文档查看
+                  uni.openDocument({
+                    filePath: res.savedFilePath,
+                    success: function(res) {
+                      console.log('打开文档成功')
+                    }
                   })
-                  setTimeout(() => {
-                    // 打开文档查看
-                    uni.openDocument({
-                      filePath: res.savedFilePath,
-                      success: function(res) {
-                        console.log('打开文档成功')
-                      }
-                    })
-                  }, 3000)
-                }
-              })
-            }
+                }, 3000)
+              }
+            })
           }
-        })
-      }
+        }
+      })
+    },
+    showDoc() {
+      const office = uni.requireNativePlugin('Jiang-OfficeView');  
+      office.open({url:'http://localhost:3000/upload/file/0412/21/20210412210350.doc',topBarColor:'#3394EC',title:'Xls文档',fileType:'xls'}, result => {  
+                              if (result.code==1) {  
+      
+                              }  
+                      })
     }
-	}
+  }
+}
 </script>
 
 <style lang="scss">

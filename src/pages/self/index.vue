@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-01-19 21:32:23
- * @LastEditTime: 2021-02-04 11:45:50
+ * @LastEditTime: 2021-04-25 13:43:37
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\self\index.vue
@@ -73,7 +73,7 @@
 						custom-prefix="custom-icon"
 						class="u-m-r-5"></u-icon>
 				</u-cell-item>
-				<u-cell-item icon="coupon" title="班级操作记录"></u-cell-item>
+				<u-cell-item icon="coupon" title="班级操作记录" @click="testSubcribeMsg"></u-cell-item>
 				<u-cell-item icon="heart" title="关注"></u-cell-item>
 			</u-cell-group>
 		</view>
@@ -85,10 +85,10 @@
 		</view>
 		<view class="content_footer">
       <u-tabbar :list="tabbarList" 
-      :mid-button="true"
-      active-color="#5677FC"
-      inactive-color="#333333"
-      :before-switch="switchAdd"></u-tabbar>
+				:mid-button="true"
+				active-color="#5677FC"
+				inactive-color="#333333"
+				:before-switch="switchAdd"></u-tabbar>
     </view>
     <u-action-sheet :list="sheetList" 
       v-model="showAddWork"
@@ -112,7 +112,43 @@ import addJobSheetMixins from '../../common/js/addJobSheetMixins'
 			this.tabbarList = [...this.$store.state.tabbarList]
 		},
 		methods: {
-			
+			testSubcribeMsg() {
+				console.log('订阅消息')
+				// uni.requestSubscribeMessage({
+				// 	tmplIds: ['UN7tn9YOU4iHha1TvaLTOWodeDw6-L_cvKtn6c6qA7k'],
+				// 	success (res) { 
+				// 		console.log(res)
+				// 	}
+				// })
+				const openId =  uni.getStorageSync('openId')
+				const accessToken =  uni.getStorageSync('accessToken')
+				// console.log(openId, accessToken)
+				uni.request({
+					url: 'https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=' + accessToken,
+					method: 'POST',
+					data: {
+						touser: openId,
+						template_id: 'UN7tn9YOU4iHha1TvaLTOWodeDw6-L_cvKtn6c6qA7k',
+						data: {
+							thing1: {
+								value: '完成第一章课后联系题'
+							},
+							thing2: {
+								value: '栈'
+							},
+							time3: {
+								value: '2021-04-30 24:00'
+							},
+							thing4: {
+								value: 'fungming'
+							}
+						}
+					},
+					success: function(res) {
+						console.log(res, '订阅请求')
+					}
+				})
+			}
 		}
 	}
 </script>
