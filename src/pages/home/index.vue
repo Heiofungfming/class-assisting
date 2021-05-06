@@ -114,7 +114,7 @@
 
       <template v-else>
         <view class="doc-box">
-          <view class="doc-item" v-for="(item, index) in docLists" :key="index">
+          <view class="doc-item" v-for="(item, index) in selectedDocList" :key="index">
             <u-icon size="80"
               :name="item.fileExt === 'docx' ? 'doc' : item.fileExt"
               custom-prefix="custom-icon"
@@ -165,7 +165,7 @@
   import tabs from '../../components/tabs/tabs' 
   // import floatBtn from '../../components/floatBtn'
   import addJobSheetMixins from '../../common/js/addJobSheetMixins'
-  import {jobApi, remindApi} from '@/api/api'
+  import {jobApi, remindApi, docApi} from '@/api/api'
 	export default {
     mixins: [addJobSheetMixins],
     components: {
@@ -389,29 +389,8 @@
         perJobLists:  [],
         selectedJobList: [], // 下拉框筛选存储栈
         remindLists: [],
-        docLists: [
-          {
-            name: '操作系统',
-            size: '222.0KB',
-            date: '2021-01-01',
-            fileExt: 'doc',
-            url: 'http://localhost:3000/upload/file/0412/21/20210412210350.doc'
-          },
-          {
-            name: '操作系统',
-            size: '222.0KB',
-            date: '2021-01-01',
-            fileExt: 'pdf',
-            url: 'http://localhost:3000/upload/file/0412/21/20210412210350.doc'
-          },
-          {
-            name: '操作系统操作系统操作系统操作系统操作系统操作系统操作系统操作系统操作系统操作系统',
-            size: '222.0KB',
-            date: '2021-01-01',
-            fileExt: 'txt',
-            url: 'http://localhost:3000/upload/file/0412/21/20210412210350.doc'
-          }
-        ],
+        docLists: [],
+        selectedDocList: [], // 下拉框筛选存储栈
         // 预览文件弹窗样式
         webviewStyles: {
           progress: {
@@ -429,17 +408,20 @@
       // this.getNowTime()
       
     },
-    onShow() {
+    async onShow() {
        // 获取openId
       this.openId = uni.getStorageSync('openId')
       // 获取当前班级
       this.className = uni.getStorageSync('curClass')
 
       // 获取作业列表
-      this.getJobLists()
+      await this.getJobLists()
       
       // 获取通知列表
-      this.getRemindLists()
+      await this.getRemindLists()
+
+      // 获取文件列表
+      this.getDocLists()
     },
     onUnload() {
       // this.removeScorllListener()
@@ -677,7 +659,12 @@
         console.log('改变通知截止类型')
       },
       changeDoc(index) {
-        console.log('改变选取文档类型')
+        if (index === 0) {
+          this.selectedDocList = this.docLists
+        } else {
+          let label = this.docOption[index].label
+          this.selectedDocList = this.docLists.filter(item => item.fileExt === label)
+        }
       },
       async changeJobList(jobType, doneType) {
         switch(jobType) {
@@ -734,44 +721,59 @@
           }
         })
       },
-    download(url) {
-      uni.downloadFile({
-        url: url,
-        success: (data) => {
-          if (data.statusCode === 200) {
-            // 文件保存到本地
-            uni.saveFile({
-              tempFilePath: data.tempFilePath, // 临时路径
-              success: function(res) {
-                uni.showToast({
-                  icon: 'none',
-                  mask: true,
-                  title: '文件已保存:' + res.savedFilePath,
-                  duration: 3000
-                })
-                setTimeout(() => {
-                  // 打开文档查看
-                  uni.openDocument({
-                    filePath: res.savedFilePath,
-                    success: function(res) {
-                      console.log('打开文档成功')
-                    }
-                  })
-                }, 3000)
-              }
-            })
+      getDocLists() {
+        let docPath = new Set()
+        this.jobLists.forEach(item => {
+          if (item.doc.length > 0) {
+            item.doc.forEach(x => docPath.add(x))
           }
-        }
-      })
-    },
-    showDoc() {
-      const office = uni.requireNativePlugin('Jiang-OfficeView');  
-      office.open({url:'http://localhost:3000/upload/file/0412/21/20210412210350.doc',topBarColor:'#3394EC',title:'Xls文档',fileType:'xls'}, result => {  
-                              if (result.code==1) {  
-      
-                              }  
-                      })
-    }
+        })
+        docApi.getDocLists({url: [...docPath]}).then(res => {
+          if (res.code === 0) {
+            this.docLists = [...res.data]
+            this.selectedDocList = this.docLists
+          }
+        })
+        
+      },
+      download(url) {
+        uni.downloadFile({
+          url: url,
+          success: (data) => {
+            if (data.statusCode === 200) {
+              // 文件保存到本地
+              uni.saveFile({
+                tempFilePath: data.tempFilePath, // 临时路径
+                success: function(res) {
+                  uni.showToast({
+                    icon: 'none',
+                    mask: true,
+                    title: '文件已保存:' + res.savedFilePath,
+                    duration: 3000
+                  })
+                  setTimeout(() => {
+                    // 打开文档查看
+                    uni.openDocument({
+                      filePath: res.savedFilePath,
+                      success: function(res) {
+                        console.log('打开文档成功')
+                      }
+                    })
+                  }, 3000)
+                }
+              })
+            }
+          }
+        })
+      },
+      showDoc() {
+        const office = uni.requireNativePlugin('Jiang-OfficeView');  
+        office.open({url:'http://localhost:3000/upload/file/0412/21/20210412210350.doc',topBarColor:'#3394EC',title:'Xls文档',fileType:'xls'}, result => {  
+                                if (result.code==1) {  
+        
+                                }  
+                        })
+      }
   }
 }
 </script>

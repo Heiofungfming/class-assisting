@@ -110,7 +110,7 @@
 
 <script>
 import mixins from '@/common/js/mixins'
-import uploadFile from '../../components/uploadFile'
+import uploadFile from '../../components/uploadFile' // 小程序端只能使用wx.chooseMessageFile进行文件选择，且只能进行真机测试
 import {jobApi, studentApi} from '@/api/api'
 export default {
   mixins: [mixins],
