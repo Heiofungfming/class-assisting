@@ -390,7 +390,7 @@
         selectedJobList: [], // 下拉框筛选存储栈
         remindLists: [],
         docLists: [],
-        selectedDocList: [], // 文件下拉框筛选存储栈
+        selectedDocList: [], // 文件下拉框筛选存储栈  
         // 预览文件弹窗样式
         webviewStyles: {
           progress: {
