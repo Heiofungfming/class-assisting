@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-04-15 21:25:24
- * @LastEditTime: 2021-04-30 11:29:51
+ * @LastEditTime: 2021-05-02 10:46:09
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\login\index.vue
@@ -154,11 +154,13 @@ export default {
               nickName: userInfo.nickName,
               gender: userInfo.gender
             }).then(res => {
-              let {code} = res
+              let {code, result} = res
               if (code === 0) {
                 console.log('添加新用户')
               } else if (code === 1) {
                 console.log('用户已存在')
+                console.log(result)
+                uni.setStorageSync('curClass', result.classes[0])
                 uni.switchTab({
                   url: '/pages/home/index'
                 })

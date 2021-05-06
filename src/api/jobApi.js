@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-03 23:43:20
- * @LastEditTime: 2021-04-16 10:43:09
+ * @LastEditTime: 2021-05-05 15:13:40
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\api\jobApi.js
@@ -26,9 +26,9 @@ export default {
       data: params
     })
   },
-  getJobLists() {
+  getJobLists(query) {
     return request({
-      url: '/job/getJobLists',
+      url: '/job/getJobLists?studentId=' + query,
       method: 'GET'
     })
   },
@@ -68,9 +68,9 @@ export default {
       data: params
     })
   },
-  getClassJobLists() {
+  getClassJobLists(query) {
     return request({
-      url: '/classJob/getJobLists',
+      url: '/classJob/getJobLists?className=' + query,
       method: 'GET'
     })
   },

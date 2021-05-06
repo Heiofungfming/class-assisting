@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-01-19 21:32:23
- * @LastEditTime: 2021-04-30 16:24:24
+ * @LastEditTime: 2021-05-02 11:15:54
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\class\joinClass.vue
@@ -107,6 +107,7 @@ export default {
             classApi.joinClass(obj).then(res => {
               if (res.code === 0) {
                 this.$showToast('加入班级成功')
+                uni.setStorageSync('curClass', obj.name)
                 uni.switchTab({
                   url: '/pages/home/index'
                 })

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-16 22:08:03
- * @LastEditTime: 2021-04-30 15:11:29
+ * @LastEditTime: 2021-05-05 16:51:50
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\api\studentApi.js
@@ -36,6 +36,12 @@ export default {
       url: '/student/updateJoinClass',
       method: 'POST',
       data: params
+    })
+  },
+  getClassesList(query) {
+    return request({
+      url: '/student/getClassesList?openId=' + query,
+      method: 'GET'
     })
   }
 }

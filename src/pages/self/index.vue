@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-01-19 21:32:23
- * @LastEditTime: 2021-04-30 15:25:38
+ * @LastEditTime: 2021-05-05 17:22:43
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\self\index.vue
@@ -40,7 +40,7 @@
 						custom-prefix="custom-icon"
 						class="u-m-r-5"></u-icon>
 				</u-cell-item>
-				<u-cell-item  title="切换班级">
+				<u-cell-item  title="切换班级" @click="showClassPicker = true">
 					<u-icon slot="icon"
 					  size="34"
 					  name="zhihuan"
@@ -49,10 +49,16 @@
 				</u-cell-item>
 			</u-cell-group>
 		</view>
+
+		<u-picker mode="selector"
+		 	v-model="showClassPicker"
+		  :default-selector="classPickerDefault"
+			:range="classNameList"
+			@confirm="selectClassName"></u-picker>
 		
 		<view class="u-m-t-20">
 			<u-cell-group>
-				<u-cell-item  title="创建班级">
+				<u-cell-item  title="创建班级" @click="addClass">
 					<u-icon slot="icon"
 					  size="34"
 					  name="group"
@@ -100,16 +106,36 @@
 <script>
 import tabs from '../../components/tabs/tabs' 
 import addJobSheetMixins from '../../common/js/addJobSheetMixins'
+import {studentApi} from '@/api/api'
 	export default {
 		mixins: [ tabs, addJobSheetMixins ],
 		data() {
 			return {
+				openId: '',
+				className: '',
 				pic: 'https://uviewui.com/common/logo.png',
-				tabbarList: []
+				tabbarList: [],
+				showClassPicker: false,
+				classNameList: []
 			}
+		},
+		computed: {
+			classPickerDefault() {
+				let index = this.classNameList.indexOf(this.className)
+				return [index]
+			}
+		},
+		watch: {
+			
 		},
 		onLoad() {
 			this.tabbarList = [...this.$store.state.tabbarList]
+
+			this.openId = uni.getStorageSync('openId')
+
+			this.className = uni.getStorageSync('curClass')
+
+			this.getClassNameList()
 		},
 		methods: {
 			testSubcribeMsg() {
@@ -153,6 +179,24 @@ import addJobSheetMixins from '../../common/js/addJobSheetMixins'
 				uni.navigateTo({
 					url: '/pages/class/joinClass'
 				})
+			},
+			addClass() {
+				uni.navigateTo({
+					url: '/pages/class/addClass'
+				})
+			},
+			getClassNameList() {
+				studentApi.getClassesList(this.openId).then(res => {
+					let {code, classesList} = res
+					if (code === 0) {
+						this.classNameList = [...classesList]
+					}
+				})
+			},
+			selectClassName(index) {
+				let idx = index[0]
+				uni.setStorageSync('curClass', this.classNameList[idx])
+				this.className = this.classNameList[idx]
 			}
 		}
 	}

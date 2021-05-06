@@ -119,7 +119,7 @@ export default {
   },
   data() {
     return {
-      pageType: '', // 页面类型
+      pageType: '', // 页面类型: 班级作业 0，个人作业 1
       openId: '',
       form: {
         course: '',
@@ -132,7 +132,7 @@ export default {
         isDone: false, // 是否完成作业
         isRemind: true,
         isCollect: true,
-        // 缺少判断是否是班级作业还是个人作业的变量
+        className: ''
       },
       rules: {
         course: [
@@ -280,13 +280,16 @@ export default {
         let docPathLists = this.getDocPath()
         this.form.doc = [...docPathLists]
       }
+   
 
       if (this.pageType === 0 && !this.isEdit) {
+        this.form.className = uni.getStorageSync('curClass')
         jobApi.addClassJob(this.form).then(res => {
           let {code} = res
           if (code === 0) this.$showToast('添加班级作业成功')
         })
       } else if(!this.isEdit){
+        this.form.studentId = uni.getStorageSync('openId')
         jobApi.addJob(this.form).then(res => {
           let {code, jobId} = res
           const obj = {
@@ -299,6 +302,7 @@ export default {
           })
         })
       } else {
+        console.log(this.form, 2222)
         jobApi.updateJob(this.form).then(res => {
           let {code} = res
           if (code === 0) this.$showToast('修改作业成功')

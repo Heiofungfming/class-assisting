@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-04-06 16:58:22
- * @LastEditTime: 2021-04-06 23:43:49
+ * @LastEditTime: 2021-05-02 11:32:33
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\add\addremind.vue
@@ -128,7 +128,8 @@ export default {
         endTime: '',
         image: [],
         doc: [],
-        isRemind: true
+        isRemind: true,
+        className: ''
       },
       rules: {
         course: [
@@ -267,6 +268,7 @@ export default {
         this.form.doc = [...docPathLists]
       }
 
+      this.form.className = uni.getStorageSync('curClass')
       remindApi.addRemind(this.form).then(res => {
         let {code} = res
         if (code === 0) this.$showToast('发布通知成功')

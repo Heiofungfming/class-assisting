@@ -174,6 +174,8 @@
     },
 		data() {
 			return {
+        openId: '',
+        className: '',
         tabList: [
           {
             name: '作业',
@@ -412,23 +414,32 @@
         ],
         // 预览文件弹窗样式
         webviewStyles: {
-                    progress: {
-                        color: '#FF3333'
-                    }
-                }
+          progress: {
+              color: '#FF3333'
+          }
+        }
 			}
     },
     
 		onLoad() {
+      
+
       this.getTabbarList()
       // this.addScorllListener()
+      // this.getNowTime()
+      
+    },
+    onShow() {
+       // 获取openId
+      this.openId = uni.getStorageSync('openId')
+      // 获取当前班级
+      this.className = uni.getStorageSync('curClass')
 
       // 获取作业列表
       this.getJobLists()
       
       // 获取通知列表
       this.getRemindLists()
-      // this.getNowTime()
     },
     onUnload() {
       // this.removeScorllListener()
@@ -459,28 +470,39 @@
       },
       // 存在复用 需通过mixin组合
       filecolor(type) {
-      return (type) => {
-        let color = '#3a80fc'
-        switch(type) {
-          case 'doc':
-          case 'docx':
-            break
-          case 'xml':
-            color = '#039e55'
-            break
-          case 'pdf':
-            color = '#d93838'
-            break
-          case 'ppt':
-            color = '#f34e19'
-            break
-          case 'zip':
-            color = '#808a7f'
-            break
+        return (type) => {
+          let color = '#3a80fc'
+          switch(type) {
+            case 'doc':
+            case 'docx':
+              break
+            case 'xml':
+              color = '#039e55'
+              break
+            case 'pdf':
+              color = '#d93838'
+              break
+            case 'ppt':
+              color = '#f34e19'
+              break
+            case 'zip':
+              color = '#808a7f'
+              break
+          }
+          return color
         }
-      return color
-      }
-    },
+      },
+      // className() {
+      //   return uni.getStorageSync('curClass')
+      // }
+      // docLists() {
+      //   let list = []
+      //   this.jobLists.forEach(item => {
+      //     if (item.doc.length > 0) {
+      //       list.concat(item.doc)
+      //     }
+      //   })
+      // }
     },
 		methods: {
       getTabbarList() {
@@ -545,7 +567,7 @@
       },
       // 获取个人作业列表
       async getPersonJobLists() {
-        await jobApi.getJobLists().then(res => {
+        await jobApi.getJobLists(this.openId).then(res => {
           let {code, data} = res
           if (code === 0) {
             this.perJobLists = [...data]
@@ -554,7 +576,7 @@
       },
       // 获取班级作业列表
       async getClassJobLists() {
-        await jobApi.getClassJobLists().then(res => {
+        await jobApi.getClassJobLists(this.className).then(res => {
           let {code, data} = res
           if (code === 0) {
             this.classJobLists = [...data]
@@ -705,7 +727,7 @@
         }
       },
       async getRemindLists() {
-        await remindApi.getRemindLists().then(res => {
+        await remindApi.getRemindLists(this.className).then(res => {
           let {code, data} = res
           if (code === 0) {
             this.remindLists = [...data]

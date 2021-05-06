@@ -184,6 +184,7 @@ export default {
           }
           studentApi.updateAddClass(obj).then(res => {
             console.log(res, '更改用户信息成功')
+            res.code === 0 && uni.setStorageSync('curClass', fullName)
           })
           uni.switchTab({
             url: '/pages/home/index'
