@@ -479,12 +479,6 @@
       getTabbarList() {
         this.tabbarList = [...this.$store.state.tabbarList]
       },
-      // addScorllListener() {
-      //   window.addEventListener('scroll', this.scrollToTop)
-      // },
-      // removeScorllListener() {
-      //   window.removeEventListener('scroll', this.scrollToTop)
-      // },
       change(index) {
 				this.currentTag = index;
       },
@@ -493,26 +487,7 @@
       },
       selectDone(e) {
         this.doneType = e[0].label
-      },
-      // scrollToTop() {
-      //   let scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
-      //   this.showFloatBtn = scrollTop > 130
-      // },
-      // backToTop() {
-      //   let distanceY = window.pageYOffset
-      //   let i = 0
-      //   let interval = null
-      //   interval = setInterval(() => {
-      //     let next = Math.floor(this.easeInOutquad(10 * i, distanceY, -distanceY, 500))
-      //     if (next <= 0) {
-      //       window.scrollTo(0, 0)
-      //       clearInterval(interval)
-      //     } else {
-      //       window.scrollTo(0, next)
-      //     }
-      //     i++
-      //   }, 17)
-      // },
+      }
       /**
        * @description: 缓动公式（Tween算法）
        * @param {*} t 动画已经执行的时间（实际上执行多少次/帧数）
