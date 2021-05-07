@@ -473,18 +473,7 @@
           }
           return color
         }
-      },
-      // className() {
-      //   return uni.getStorageSync('curClass')
-      // }
-      // docLists() {
-      //   let list = []
-      //   this.jobLists.forEach(item => {
-      //     if (item.doc.length > 0) {
-      //       list.concat(item.doc)
-      //     }
-      //   })
-      // }
+      }
     },
 		methods: {
       getTabbarList() {
