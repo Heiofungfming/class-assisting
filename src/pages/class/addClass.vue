@@ -47,7 +47,7 @@
     <u-button @click="submit" 
       :custom-style="squareStyle"
       :hair-line="true"
-      ripple>创建班级</u-button>
+      ripple>{{isEdit ? '编辑班级信息' : '创建班级'}}</u-button>
 	</view>
 </template>
 
@@ -58,6 +58,7 @@ export default {
   mixins: [mixins],
   data() {
     return {
+      isEdit: false,
       form: {
         school: '',
         academy: '',
@@ -158,8 +159,9 @@ export default {
       }
     }
   },
-  onLoad() {
-
+  onLoad(obj) {
+    obj.className && this.getFormData(obj.className)
+    this.setTitle()
   },
   onReady() {
     this.$refs.uForm.setRules(this.rules)
@@ -169,6 +171,37 @@ export default {
       let { school, academy, grade, major, } = this.form
       const fullName = school + academy + grade + major + this.form.class
       const openId = uni.getStorageSync('openId')
+      console.log(this.isEdit)
+      if (!this.isEdit) {
+        // 创建班级
+        this.addClass(openId, fullName)
+      } else {
+        // 编辑班级信息
+        this.editClass(openId, fullName)
+      }
+    },
+    async getFormData(className) {
+      this.isEdit = true
+      console.log('编辑班级信息')
+      await classApi.getClassMsg({className: className}).then(res => {
+        let {code, result} = res
+        if (code === 0) {
+          this.form = {...result}
+        }
+      })
+    },
+    setTitle() {
+      if (this.isEdit) {
+        uni.setNavigationBarTitle({
+          title:'编辑班级信息'
+        })
+      } else {
+        uni.setNavigationBarTitle({
+          title:'创建班级'
+        })
+      }
+    },
+    async addClass(openId, fullName) {
       this.form.students.push(openId)
       this.form.adminor.push(openId)
       await classApi.addClass(this.form).then(res => {
@@ -191,17 +224,30 @@ export default {
           })
         }
       })
-      // this.$refs.uForm.validate(valid => {
-			// 	if (valid) {
-			// 		console.log('验证通过');
-			// 	} else {
-			// 		console.log('验证失败');
-			// 	}
-			// })
-      // uni.switchTab({
-      //   url: '/pages/home/index'
-      // })
     },
+    async editClass(openId, fullName) {
+      await classApi.editClass(this.form).then(res => {
+          if (res.code === 0) {
+            return Promise.resolve(res.code)
+          }
+        }).then(code => {
+          let obj = {
+            openId: openId,
+            preName: this.form.fullName,
+            curName: fullName
+          }
+          if (code === 0) {
+            studentApi.updateEditClass(obj).then(res => {
+              if (res.code === 0) {
+                this.$showToast('更新学生班级信息成功')
+                uni.navigateBack({
+                    delta: 1
+                })
+              }
+            })
+          }
+        })
+    }
     // updateAddClass() {
     //   const openId = uni.getStorageSync('openId') 
     //   studentApi.updateAddClass()

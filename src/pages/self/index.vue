@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-01-19 21:32:23
- * @LastEditTime: 2021-05-05 17:22:43
+ * @LastEditTime: 2021-05-08 17:04:08
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\self\index.vue
@@ -10,11 +10,10 @@
 	<view>
 		<view class="u-flex user-box u-p-l-30 u-p-r-20 u-p-b-30">
 			<view class="u-m-r-10">
-				<u-avatar :src="pic" size="140"></u-avatar>
+				<u-avatar :src="avatarUrl" size="140" mode="square"></u-avatar>
 			</view>
 			<view class="u-flex-1">
-				<view class="u-font-18 u-p-b-20">uView ui</view>
-				<view class="u-font-14">微信号:helang_uView</view>
+				<view class="u-font-40 u-p-l-20" :style="{fontWeight: '500'}">{{nickName}}</view>
 			</view>
 			<view class="u-m-l-10 u-p-10">
 				<u-icon name="scan" color="#fff" size="28"></u-icon>
@@ -33,7 +32,7 @@
 						custom-prefix="custom-icon"
 						class="u-m-r-5"></u-icon>
 				</u-cell-item>
-				<u-cell-item  title="成员管理">
+				<u-cell-item  title="成员管理" @click="ManageMember">
 					<u-icon slot="icon"
 					  size="34"
 					  name="hezuohuobanmiyueguanli"
@@ -72,7 +71,7 @@
 						custom-prefix="custom-icon"
 						class="u-m-r-5"></u-icon>
 				</u-cell-item>
-				<u-cell-item  title="管理班级">
+				<u-cell-item  title="管理班级" @click="manageClass">
 					<u-icon slot="icon"
 					  size="34"
 					  name="addressbook"
@@ -106,14 +105,15 @@
 <script>
 import tabs from '../../components/tabs/tabs' 
 import addJobSheetMixins from '../../common/js/addJobSheetMixins'
-import {studentApi} from '@/api/api'
+import {studentApi, classApi} from '@/api/api'
 	export default {
 		mixins: [ tabs, addJobSheetMixins ],
 		data() {
 			return {
 				openId: '',
 				className: '',
-				pic: 'https://uviewui.com/common/logo.png',
+				avatarUrl: '',
+				nickName: '',
 				tabbarList: [],
 				showClassPicker: false,
 				classNameList: []
@@ -130,6 +130,8 @@ import {studentApi} from '@/api/api'
 		},
 		onLoad() {
 			this.tabbarList = [...this.$store.state.tabbarList]
+
+			this.getUserInfo()
 
 			this.openId = uni.getStorageSync('openId')
 
@@ -197,6 +199,33 @@ import {studentApi} from '@/api/api'
 				let idx = index[0]
 				uni.setStorageSync('curClass', this.classNameList[idx])
 				this.className = this.classNameList[idx]
+			},
+			async ManageMember() {
+				await classApi.isAdminor(this.openId).then(res => {
+					if (res.code !== 0) {
+						this.$showToast('不是该班级的管理员，不可以使用该功能')
+					}else {
+						uni.navigateTo({
+							url: '/pages/self/memberManage'
+						})
+					}
+				})
+			},
+			async manageClass() {
+				await classApi.isAdminor(this.openId).then(res => {
+					if (res.code !== 0) {
+						this.$showToast('不是该班级的管理员，不可以使用该功能')
+					}else {
+						uni.navigateTo({
+							url: '/pages/self/classManage'
+						})
+					}
+				})
+			},
+			getUserInfo() {
+				let info = uni.getStorageSync('userInfo')
+				this.avatarUrl = info.avatarUrl
+				this.nickName = info.nickName
 			}
 		}
 	}

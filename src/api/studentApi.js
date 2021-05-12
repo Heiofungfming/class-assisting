@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-16 22:08:03
- * @LastEditTime: 2021-05-05 16:51:50
+ * @LastEditTime: 2021-05-11 16:47:06
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\api\studentApi.js
@@ -38,10 +38,24 @@ export default {
       data: params
     })
   },
+  updateEditClass(params) {
+    return request({
+      url: '/student/updateEditClass',
+      method: 'POST',
+      data: params
+    })
+  },
   getClassesList(query) {
     return request({
       url: '/student/getClassesList?openId=' + query,
       method: 'GET'
+    })
+  },
+  getStuMsg(params) {
+    return request({
+      url: '/student/getStuMsg',
+      method: 'POST',
+      data: params
     })
   }
 }

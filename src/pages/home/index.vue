@@ -487,7 +487,7 @@
       },
       selectDone(e) {
         this.doneType = e[0].label
-      }
+      },
       /**
        * @description: 缓动公式（Tween算法）
        * @param {*} t 动画已经执行的时间（实际上执行多少次/帧数）

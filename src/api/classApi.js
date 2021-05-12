@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-01 18:12:08
- * @LastEditTime: 2021-04-30 15:20:26
+ * @LastEditTime: 2021-05-11 15:01:24
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\api\classApi.js
@@ -17,6 +17,13 @@ export default {
       data: params
     })
   },
+  editClass(params) {
+    return request({
+      url: '/class/editClass',
+      method: 'POST',
+      data: params
+    })
+  },
   joinClass(params) {
     return request({
       url: '/class/joinClass',
@@ -27,6 +34,25 @@ export default {
   checkPassword(params) {
     return request({
       url: '/class/checkPassword',
+      method: 'POST',
+      data: params
+    })
+  },
+  isAdminor(query) {
+    return request({
+      url: '/class/isAdminor?openId=' + query,
+      method: 'GET'
+    })
+  },
+  getStudents(query) {
+    return request({
+      url: '/class/getStudents?className=' + query,
+      method: 'GET'
+    })
+  },
+  getClassMsg(params) {
+    return request({
+      url: '/class/getClassMsg',
       method: 'POST',
       data: params
     })

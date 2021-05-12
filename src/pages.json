@@ -68,6 +68,18 @@
 			"style": {
 				"navigationBarTitleText": "通知详情"
 			}
+		},
+		{
+			"path": "pages/self/memberManage",
+			"style": {
+				"navigationBarTitleText": "成员管理"
+			}
+		},
+		{
+			"path": "pages/self/classManage",
+			"style": {
+				"navigationBarTitleText": "管理班级"
+			}
 		}
 	],
 	"globalStyle": {

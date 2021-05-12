@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-04-15 21:25:24
- * @LastEditTime: 2021-05-02 10:46:09
+ * @LastEditTime: 2021-05-07 15:23:08
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\login\index.vue
@@ -152,7 +152,8 @@ export default {
             studentApi.addStudent({
               openId: userInfo.openId,
               nickName: userInfo.nickName,
-              gender: userInfo.gender
+              gender: userInfo.gender,
+              avatarUrl: userInfo.avatarUrl
             }).then(res => {
               let {code, result} = res
               if (code === 0) {
