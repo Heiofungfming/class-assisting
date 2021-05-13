@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-01-19 21:32:23
- * @LastEditTime: 2021-05-08 17:04:08
+ * @LastEditTime: 2021-05-13 16:25:23
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\self\index.vue
@@ -25,7 +25,7 @@
 		
 		<view class="u-m-t-20">
 			<u-cell-group>
-				<u-cell-item  title="邀请成员">
+				<u-cell-item  title="邀请成员" open-type="share">
 					<u-icon slot="icon"
 					  size="34"
 					  name="fenxiangfangshi"
@@ -139,6 +139,17 @@ import {studentApi, classApi} from '@/api/api'
 
 			this.getClassNameList()
 		},
+		onShareAppMessage(res) {
+			console.log(res)
+			
+			if (res.from === 'button') {// 来自页面内分享按钮
+				console.log(res.target)
+			}
+			return {
+				title: '同学们快加进来吧~',
+				path: '/pages/class/joinClass'
+			}
+		},
 		methods: {
 			testSubcribeMsg() {
 				console.log('订阅消息')
@@ -149,32 +160,37 @@ import {studentApi, classApi} from '@/api/api'
 				// 	}
 				// })
 				const openId =  uni.getStorageSync('openId')
-				const accessToken =  uni.getStorageSync('accessToken')
+				const tokenData =  uni.getStorageSync('tokenData')
 				// console.log(openId, accessToken)
-				uni.request({
-					url: 'https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=' + accessToken,
-					method: 'POST',
-					data: {
-						touser: openId,
-						template_id: 'UN7tn9YOU4iHha1TvaLTOWodeDw6-L_cvKtn6c6qA7k',
-						data: {
-							thing1: {
-								value: '完成第一章课后联系题'
+				wx.requestSubscribeMessage({
+					tmplIds: ['W5Rn8IORPDiFEbkHO6qoeMNL48zv6Em2w1WW1RRdo1w'],
+					success (res) {
+						uni.request({
+							url: 'https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=' + tokenData.accessToken,
+							method: 'POST',
+							data: {
+								touser: openId,
+								template_id: 'W5Rn8IORPDiFEbkHO6qoeMNL48zv6Em2w1WW1RRdo1w',
+								data: {
+									thing1: {
+										value: '发送多次订阅信息'
+									},
+									date2: {
+										value: '2021-05-30 24:00'
+									},
+									thing3: {
+										value: '订阅信息'
+									},
+									name4: {
+										value: 'fungming'
+									}
+								}
 							},
-							thing2: {
-								value: '栈'
-							},
-							time3: {
-								value: '2021-04-30 24:00'
-							},
-							thing4: {
-								value: 'fungming'
+							success: function(res) {
+								console.log(res, '订阅请求')
 							}
-						}
-					},
-					success: function(res) {
-						console.log(res, '订阅请求')
-					}
+						})
+					 }
 				})
 			},
 			joinClass() {

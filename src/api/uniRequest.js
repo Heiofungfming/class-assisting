@@ -1,13 +1,13 @@
 /*
  * @Author: your name
  * @Date: 2021-04-15 23:13:21
- * @LastEditTime: 2021-05-12 13:48:01
+ * @LastEditTime: 2021-05-13 14:02:38
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\api\uniRequest.js
  */
-// const baseUrl = 'http://localhost:3000'
-const baseUrl = 'http://www.fungming.xyz:3000'
+const baseUrl = 'http://localhost:3000'
+// const baseUrl = 'http://www.fungming.xyz:3000'
 const request = (
     obj
   ) => {

@@ -84,18 +84,25 @@
           </view>
           <!-- 添加文件预览 结束-->
         </u-form-item>
-        <template v-if="pageType === 0">
+        <template v-if="pageType == 0">
           <u-form-item label="是否向班级同学发送提醒"
-          prop="isRemind"
-          required>
-            <u-switch slot="right" v-model="switchRemind"></u-switch>
-        </u-form-item>
-        <u-form-item label="是否使用收作业功能"
-          prop="isCollect"
-          required>
-            <u-switch slot="right" v-model="switchCollect"></u-switch>
-        </u-form-item>
+            prop="isRemind"
+            required>
+              <u-switch slot="right" v-model="switchRemind"></u-switch>
+          </u-form-item>
+          <!-- <u-form-item label="是否使用收作业功能"
+            prop="isCollect"
+            required>
+              <u-switch slot="right" v-model="switchCollect"></u-switch>
+          </u-form-item> -->
         </template>
+        <!-- <template v-else>
+          <u-form-item label="是否设置提醒"
+            prop="isSelfRemind"
+            required>
+              <u-switch slot="right" v-model="switchSelfRemind"></u-switch>
+          </u-form-item>
+        </template> -->
       </u-form>
 	  </view>
     <u-button @click="submit" 
@@ -111,7 +118,7 @@
 <script>
 import mixins from '@/common/js/mixins'
 import uploadFile from '../../components/uploadFile' // 小程序端只能使用wx.chooseMessageFile进行文件选择，且只能进行真机测试
-import {jobApi, studentApi} from '@/api/api'
+import {jobApi, studentApi, classApi, loginApi} from '@/api/api'
 export default {
   mixins: [mixins],
   components: {
@@ -286,7 +293,11 @@ export default {
         this.form.className = uni.getStorageSync('curClass')
         jobApi.addClassJob(this.form).then(res => {
           let {code} = res
-          if (code === 0) this.$showToast('添加班级作业成功')
+          if (code === 0) {
+            this.$showToast('添加班级作业成功')
+            // 发送作业提醒
+            this.switchRemind && this.sendSubcribeMsg()
+          }
         })
       } else if(!this.isEdit){
         this.form.studentId = uni.getStorageSync('openId')
@@ -296,16 +307,22 @@ export default {
             openId: this.openId,
             jobId: jobId
           }
-          // console.log(obj,'------------')
           studentApi.updateAddJob(obj).then(res => {
-            if (res.code === 0) this.$showToast('添加个人作业成功')
+            if (res.code === 0) {
+              this.$showToast('添加个人作业成功')
+              uni.navigateBack({
+                delta: 1
+              })
+            }
           })
         })
       } else {
-        console.log(this.form, 2222)
         jobApi.updateJob(this.form).then(res => {
           let {code} = res
-          if (code === 0) this.$showToast('修改作业成功')
+          if (code === 0) {
+            this.$showToast('修改作业成功')
+            this.switchRemind && this.sendSubcribeMsg()
+          }
         })
       }
 
@@ -415,6 +432,103 @@ export default {
         this.imgLists = [...image]
         this.imgPathLists = [...image]
       }
+    },
+    sendSubcribeMsg() {
+      console.log('发送订阅消息')
+      const openId =  uni.getStorageSync('openId')
+      const accessToken =  this.getAccessToken()
+      const {nickName} = uni.getStorageSync('userInfo')
+      // console.log(userInfo,2222222)
+      const className = uni.getStorageSync('curClass')
+      let {detail, title, endTime} = this.form
+
+      classApi.getStudents(className).then(res => {
+				if (res.code === 0) {
+					return Promise.resolve([...res.students])
+				}
+			}).then(res => {
+        Promise.all(res.map(item => {
+          uni.request({
+            url: 'https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=' + accessToken,
+            method: 'POST',
+            data: {
+              touser: item,
+              template_id: 'UN7tn9YOU4iHha1TvaLTOWodeDw6-L_cvKtn6c6qA7k',
+              data: {
+                thing1: {
+                  value: detail
+                },
+                thing2: {
+                  value: title
+                },
+                time3: {
+                  value: endTime
+                },
+                thing4: {
+                  value: nickName
+                }
+              }
+            },
+            success: function(res) {
+              console.log(res, '订阅请求')
+              uni.navigateBack({
+                delta: 1
+              })
+            }
+          })
+        }))
+      })
+
+      // wx.requestSubscribeMessage({
+      //   tmplIds: ['UN7tn9YOU4iHha1TvaLTOWodeDw6-L_cvKtn6c6qA7k'],
+      //   success: res => {
+      //     uni.request({
+      //       url: 'https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=' + accessToken,
+      //       method: 'POST',
+      //       data: {
+      //         touser: openId,
+      //         template_id: 'UN7tn9YOU4iHha1TvaLTOWodeDw6-L_cvKtn6c6qA7k',
+      //         data: {
+      //           thing1: {
+      //             value: detail
+      //           },
+      //           thing2: {
+      //             value: title
+      //           },
+      //           time3: {
+      //             value: endTime
+      //           },
+      //           thing4: {
+      //             value: nickName
+      //           }
+      //         }
+      //       },
+      //       success: function(res) {
+      //         console.log(res, '订阅请求')
+      //       }
+      //     })
+      //   }
+		  // })
+				
+    },
+    getAccessToken() {
+      const currentTime = new Date()
+      const tokenData = uni.getStorageSync('tokenData')
+      // const createTime = new Date(tokenData.createTime)
+      let diff = currentTime.getTime() - tokenData.createTime
+      if ((diff/1000) > 7200) {
+        // 重新获取access_token
+        loginApi.getAccessToken().then(res => {
+          const creatTime = new Date()
+          let obj = {
+            accessToken: res.data.access_token,
+            createTime: creatTime
+          }
+          uni.setStorageSync('tokenData', obj)
+          return obj.accessToken
+        })
+      }
+      return tokenData.accessToken
     }
   }
 }

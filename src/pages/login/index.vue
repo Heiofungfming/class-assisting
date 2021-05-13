@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-04-15 21:25:24
- * @LastEditTime: 2021-05-07 15:23:08
+ * @LastEditTime: 2021-05-13 15:11:02
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\login\index.vue
@@ -81,7 +81,7 @@ export default {
     uni.getStorageInfo({
       success: res => {
         let keys = res.keys
-        if (keys.includes('userInfo') && keys.includes('openId') && keys.includes('accessToken')) {
+        if (keys.includes('userInfo') && keys.includes('openId') && keys.includes('tokenData')) {
           uni.switchTab({
             url: '/pages/home/index'
           })
@@ -130,8 +130,13 @@ export default {
           })
 
           loginApi.getAccessToken().then(res => {
-            console.log(res)
-            uni.setStorageSync('accessToken', res.data.access_token)
+            // console.log(res, 'token')
+            const creatTime = new Date().getTime()
+            let obj = {
+              accessToken: res.data.access_token,
+              createTime: creatTime
+            }
+            uni.setStorageSync('tokenData', obj)
           })
         }
       })

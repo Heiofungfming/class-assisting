@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-04-06 16:58:22
- * @LastEditTime: 2021-05-02 11:32:33
+ * @LastEditTime: 2021-05-13 16:59:56
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\add\addremind.vue
@@ -35,7 +35,7 @@
           prop="detail"
           required>
           <u-input v-model="form.detail"
-           placeholder="请输入作业内容"
+           placeholder="请输入通知内容"
            type="textarea"/>
         </u-form-item>
         <u-form-item 
@@ -112,7 +112,7 @@
 <script>
 import mixins from '@/common/js/mixins'
 import uploadFile from '../../components/uploadFile'
-import {remindApi} from '@/api/api'
+import {remindApi, classApi, loginApi, jobApi} from '@/api/api'
 export default {
   mixins: [mixins],
   components: {
@@ -269,10 +269,24 @@ export default {
       }
 
       this.form.className = uni.getStorageSync('curClass')
-      remindApi.addRemind(this.form).then(res => {
-        let {code} = res
-        if (code === 0) this.$showToast('发布通知成功')
-      })
+      if (this.pageType === 0) {
+        // 发布通知
+        remindApi.addRemind(this.form).then(res => {
+          let {code} = res
+          if (code === 0) {
+            this.$showToast('发布通知成功')
+            this.switchRemind && this.sendSubcribeMsg()
+          }
+        })
+      } else {
+        // 修改通知
+        remindApi.updateRemind(this.form).then(res => {
+          if (res.code === 0) {
+            this.$showToast('修改通知成功')
+            this.switchRemind && this.sendSubcribeMsg()
+          }
+        })
+      }
 
       // else {
       //   jobApi.addJob(this.form).then(res => {
@@ -378,6 +392,71 @@ export default {
     },
     selectRemindTag(index) {
       this.form.tag = this.remindTagList[index].text
+    },
+    sendSubcribeMsg() {
+      console.log('发送订阅消息')
+      const openId =  uni.getStorageSync('openId')
+      const accessToken =  this.getAccessToken()
+      const {nickName} = uni.getStorageSync('userInfo')
+      // console.log(userInfo,2222222)
+      const className = uni.getStorageSync('curClass')
+      let {detail, title, endTime} = this.form
+
+      classApi.getStudents(className).then(res => {
+				if (res.code === 0) {
+					return Promise.resolve([...res.students])
+				}
+			}).then(res => {
+        Promise.all(res.map(item => {
+          uni.request({
+            url: 'https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=' + accessToken,
+            method: 'POST',
+            data: {
+              touser: item,
+              template_id: 'W5Rn8IORPDiFEbkHO6qoeMNL48zv6Em2w1WW1RRdo1w',
+              data: {
+                thing1: {
+                  value: detail
+                },
+                date2: {
+                  value: endTime
+                },
+                thing3: {
+                  value: title
+                },
+                name4: {
+                  value: nickName
+                }
+              }
+            },
+            success: function(res) {
+              console.log(res, '订阅请求')
+              uni.navigateBack({
+                delta: 1
+              })
+            }
+          })
+        }))
+      })
+    },
+    getAccessToken() {
+      const currentTime = new Date()
+      const tokenData = uni.getStorageSync('tokenData')
+      // const createTime = new Date(tokenData.createTime)
+      let diff = currentTime.getTime() - tokenData.createTime
+      if ((diff/1000) > 7200) {
+        // 重新获取access_token
+        loginApi.getAccessToken().then(res => {
+          const creatTime = new Date()
+          let obj = {
+            accessToken: res.data.access_token,
+            createTime: creatTime
+          }
+          uni.setStorageSync('tokenData', obj)
+          return obj.accessToken
+        })
+      }
+      return tokenData.accessToken
     }
   }
 }
