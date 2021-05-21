@@ -194,22 +194,14 @@ export default {
       switchCollect: false, // 是否使用收集作业功能
 
       showUploadList: false,
-        showImgList: false, 
+        // showImgList: false, 
         imgLists: [], // 图片的预览列表
         imgPathLists:[],
         docLists: [],
         docPathLists:[],
         upFileUrl: 'http://www.fungming.xyz:3000/job/uploadFile',
 
-      isEdit: false,
-      fileList: [
-					{
-						url: '/static/logo.png',
-          },
-          {
-            url: 'http://localhost:3000/upload/image/0409/21/20210409215830.png'
-          }
-				]
+      isEdit: false
     }
   },
   onLoad(obj) {
@@ -650,7 +642,6 @@ export default {
     padding: 20rpx;
     display: flex;
     align-items: center;
-    /* border: solid 1px #8a8a8a; */
     border-radius: 10rpx;
     overflow: hidden;
     box-shadow: 1px 2px 4px rgba(34, 25, 25, 0.2);

@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-03-22 21:34:40
- * @LastEditTime: 2021-05-16 18:02:36
+ * @LastEditTime: 2021-05-21 14:50:45
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\add\detailJob.vue
@@ -86,7 +86,6 @@ import {jobApi, docApi} from '@/api/api'
 		data() {
 			return {
 				pageType: 0, // 班级作业详情页面 0，  个人作业详情页面 1
-				staticPath: '/static',
 				jobData: {},
 				imgArray: [],
 				docLists: []
@@ -134,7 +133,7 @@ import {jobApi, docApi} from '@/api/api'
           let {code, data} = res
           if (code === 0) {
 						this.jobData = data
-						this.getImgPath()
+						// this.getImgPath()
 						this.getDocList()
           }
         })
@@ -145,7 +144,7 @@ import {jobApi, docApi} from '@/api/api'
           if (code === 0) {
 						this.jobData = data
 						console.log(this.jobData)
-						await this.getImgPath()
+						// await this.getImgPath()
 						await this.getDocList()
           }
         })

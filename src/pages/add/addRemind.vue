@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-04-06 16:58:22
- * @LastEditTime: 2021-05-17 13:09:45
+ * @LastEditTime: 2021-05-21 15:31:36
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\add\addremind.vue
@@ -59,6 +59,7 @@
             :action="actionURL" 
             :auto-upload="true"
             del-bg-color="#8a8a8a"
+            :file-list="imgLists"
             @on-success="saveImgPath"
             @on-remove="deleteImg"></u-upload>
         </u-form-item>
@@ -73,8 +74,8 @@
                 :color="filecolor(item.fileExt)"
                 class="u-m-r-5"></u-icon>
               <view class="pre-item-content">
-                <view class="pre-item-title">{{item.file.name}}</view>
-                <view class="pre-item-size">{{getFileSize(item.file.size)}}</view>
+                <view class="pre-item-title">{{item.name}}</view>
+                <view class="pre-item-size">{{item.size}}</view>
               </view>
               <view class="delete-icon"
                 @tap.stop="deleteDocItem(index)">
@@ -84,7 +85,8 @@
             <upload-file ref="lFile" 
               :custom-btn="true"
               :show-upload-list="showUploadList"
-              :action="upFileUrl">
+              :action="upFileUrl"
+              @on-success="addDoc">
               <view slot="addBtn" class="slot-btn" hover-class="slot-btn__hover" hover-stay-time="150">
                   <u-icon name="file-text" size="50" color="#8a8a8a" label="请选择聊天中的文件"></u-icon>
               </view>
@@ -112,7 +114,7 @@
 <script>
 import mixins from '@/common/js/mixins'
 import uploadFile from '../../components/uploadFile'
-import {remindApi, classApi, loginApi, jobApi} from '@/api/api'
+import {remindApi, classApi, loginApi, jobApi, docApi} from '@/api/api'
 export default {
   mixins: [mixins],
   components: {
@@ -169,7 +171,7 @@ export default {
         ]
       },
       // 服务器上传地址
-      actionURL: 'http://localhost:3000/job/uploadImg',
+      actionURL: 'http://www.fungming.xyz:3000/job/uploadImg',
       showTimePicker: false,
       timeParams: {
         year: true,
@@ -183,10 +185,11 @@ export default {
       switchCollect: false, // 是否使用收集作业功能
 
       showUploadList: false, 
-        imgPathLists:[],
-        docLists: [],
-        docPathLists:[],
-        upFileUrl: 'http://localhost:3000/job/uploadFile',
+      imgLists: [], // 图片的预览列表
+      imgPathLists:[],
+      docLists: [],
+      docPathLists:[],
+      upFileUrl: 'http://www.fungming.xyz:3000/job/uploadFile',
       
       remindTagList: [
         { text: '学校通知' },
@@ -205,8 +208,10 @@ export default {
   },
   onReady() {
     this.$refs.uForm.setRules(this.rules)
+    // 获取图片列表
+    this.imgLists = this.$refs.uImg.lists
     // 获取文件列表
-    this.docLists = this.$refs.lFile.lists;
+    // this.docLists = this.$refs.lFile.lists;
   },
   computed: {
     endTimeText() {
@@ -287,6 +292,9 @@ export default {
           }
         })
       }
+      uni.navigateBack({
+        delta: 1
+      })
 
       // else {
       //   jobApi.addJob(this.form).then(res => {
@@ -325,6 +333,8 @@ export default {
         let {code, data} = res
         if (code === 0) {
           this.form = {...data}
+          this.getImgList()
+          this.getDocLists()
         }
       })
     },
@@ -359,7 +369,8 @@ export default {
     },
     saveImgPath(data, index) {
       let { realPath } = data
-      this.imgPathLists.push(realPath)
+      let obj = { url: realPath }
+      this.imgPathLists.push(obj)
     },
     deleteImg(index, lists, name){
       let delPath = this.imgPathLists[index]
@@ -371,10 +382,9 @@ export default {
         }
       })
     },
-    deleteDocItem(index) {
-      let { realPath } = this.docLists[index].response
-      let obj = {delPath: realPath}
-      jobApi.deleteFile(obj).then(res => {
+    async deleteDocItem(index) {
+      let obj = {delPath: this.docLists[index].url}
+      await jobApi.deleteFile(obj).then(res => {
         let {error_code} = res
         if (error_code === 10000) {
           this.docLists.splice(index, 1);
@@ -385,13 +395,62 @@ export default {
     getDocPath() {
       let arr = []
       this.docLists.forEach(item => {
-        let {realPath} = item.response
-        arr.push(realPath)
+        arr.push(item.url)
       })
       return arr
     },
     selectRemindTag(index) {
       this.form.tag = this.remindTagList[index].text
+    },
+    getImgList() {
+      let { image } = this.form
+      if (image.length > 0) {
+        this.imgLists = [...image]
+        this.imgPathLists = [...image]
+      }
+    },
+    getDocLists() {
+      let { doc } = this.form
+      if (doc.length > 0) {
+        docApi.getDocLists({url: [...doc]}).then(res => {
+          if (res.code === 0) {
+            this.docLists = [...res.data]
+          }
+        })
+      }
+    },
+    addDoc(data, index, lists) {
+      let item = lists[index]
+      let curDate = this.getNowFormatDate()
+      let size = this.getFileSize(item.file.size)
+      let obj = {
+        name: item.file.name,
+        size: size,
+        date: curDate,
+        fileExt: item.fileExt,
+        url: item.response.realPath
+      }
+      this.docLists.push(obj)
+      docApi.addDoc(obj).then(res => {
+        if (res.code === 0) {
+          // this.docLists.push(obj)
+          this.$showToast('上传文件成功！')
+        }
+      })
+    },
+    getNowFormatDate() {
+      let date = new Date()
+      let year = date.getFullYear(), 
+          month = date.getMonth() + 1,
+          day = date.getDate()
+      if (month >= 1 && month <= 9) {
+        month = "0" + month
+      }
+      if (day >= 1 && day <= 9) {
+        day = "0" + day
+      }
+      let curdate = year + '-' + month + '-' + day
+      return curdate  
     },
     sendSubcribeMsg() {
       console.log('发送订阅消息')
@@ -431,13 +490,10 @@ export default {
             },
             success: function(res) {
               console.log(res, '订阅请求')
-              uni.navigateBack({
-                delta: 1
-              })
             }
           })
-        })).catch(res => {
-          console.log(res)
+        })).catch(err => {
+          console.log(err)
         })
       })
     },
@@ -507,8 +563,9 @@ export default {
     padding: 20rpx;
     display: flex;
     align-items: center;
-    border: solid 1px #8a8a8a;
     border-radius: 10rpx;
+    overflow: hidden;
+    box-shadow: 1px 2px 4px rgba(34, 25, 25, 0.2);
 	}
 
   .pre-item-content {
@@ -519,6 +576,10 @@ export default {
   }
   .pre-item-title {
     flex: 1;
+    width: 450rpx;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
   }
   .pre-item-size{
     flex: 1;
@@ -537,4 +598,3 @@ export default {
     z-index: 10;
   }
 </style>
-
