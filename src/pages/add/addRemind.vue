@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-04-06 16:58:22
- * @LastEditTime: 2021-05-13 16:59:56
+ * @LastEditTime: 2021-05-17 13:09:45
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\add\addremind.vue
@@ -436,7 +436,9 @@ export default {
               })
             }
           })
-        }))
+        })).catch(res => {
+          console.log(res)
+        })
       })
     },
     getAccessToken() {

@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-01-19 21:32:23
- * @LastEditTime: 2021-05-13 16:25:23
+ * @LastEditTime: 2021-05-13 23:33:53
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\self\index.vue
@@ -25,7 +25,7 @@
 		
 		<view class="u-m-t-20">
 			<u-cell-group>
-				<u-cell-item  title="邀请成员" open-type="share">
+				<u-cell-item  title="邀请成员" @click="showMask = true">
 					<u-icon slot="icon"
 					  size="34"
 					  name="fenxiangfangshi"
@@ -95,10 +95,20 @@
 				inactive-color="#333333"
 				:before-switch="switchAdd"></u-tabbar>
     </view>
+
     <u-action-sheet :list="sheetList" 
       v-model="showAddWork"
       border-radius="20"
       @click="addJob"></u-action-sheet>
+
+		<u-mask :show="showMask" @click="showMask = false">
+			<view class="mask_warp">
+				<view class="mask_rect">
+					<image src="/static/image/grougTalk.png" alt="">
+					<u-button open-type="share" :custom-style="maskBtnStyle">分享到群聊</u-button>
+				</view>
+			</view>
+		</u-mask>
 	</view>
 </template>
 
@@ -116,7 +126,15 @@ import {studentApi, classApi} from '@/api/api'
 				nickName: '',
 				tabbarList: [],
 				showClassPicker: false,
-				classNameList: []
+				classNameList: [],
+				showMask: false,
+				maskBtnStyle: {
+					marginTop: '10rpx',
+					height: '58rpx',
+					background: '#5677FC',
+					color: 'white',
+					fontSize: '24rpx'
+				}
 			}
 		},
 		computed: {
@@ -264,4 +282,33 @@ page{
 	background-color: #5677FC;
 	color: #fff;
 }
+
+.mask_warp {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+}
+
+.mask_rect {
+	width: 280rpx;
+	height: 280rpx;
+	background-color: #fff;
+	padding: 15rpx;
+	border-radius: 10rpx;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.mask_rect image {
+	width: 180rpx;
+	height: 180rpx;
+}
+
+.mask_button {
+	height: 50rpx;
+	background: #5677FC;
+}
+
 </style>

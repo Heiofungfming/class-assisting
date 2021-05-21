@@ -65,8 +65,8 @@
                 :color="filecolor(item.fileExt)"
                 class="u-m-r-5"></u-icon>
               <view class="pre-item-content">
-                <view class="pre-item-title">{{item.file.name}}</view>
-                <view class="pre-item-size">{{getFileSize(item.file.size)}}</view>
+                <view class="pre-item-title">{{item.name}}</view>
+                <view class="pre-item-size">{{item.size}}</view>
               </view>
               <view class="delete-icon"
                 @tap.stop="deleteDocItem(index)">
@@ -76,7 +76,8 @@
             <upload-file ref="lFile" 
               :custom-btn="true"
               :show-upload-list="showUploadList"
-              :action="upFileUrl">
+              :action="upFileUrl"
+              @on-success="addDoc">
               <view slot="addBtn" class="slot-btn" hover-class="slot-btn__hover" hover-stay-time="150">
                   <u-icon name="file-text" size="50" color="#8a8a8a" label="请选择聊天中的文件"></u-icon>
               </view>
@@ -118,7 +119,7 @@
 <script>
 import mixins from '@/common/js/mixins'
 import uploadFile from '../../components/uploadFile' // 小程序端只能使用wx.chooseMessageFile进行文件选择，且只能进行真机测试
-import {jobApi, studentApi, classApi, loginApi} from '@/api/api'
+import {jobApi, studentApi, classApi, loginApi, docApi} from '@/api/api'
 export default {
   mixins: [mixins],
   components: {
@@ -179,7 +180,7 @@ export default {
         ]
       },
       // 服务器上传地址
-      actionURL: 'http://localhost:3000/job/uploadImg',
+      actionURL: 'http://www.fungming.xyz:3000/job/uploadImg',
       showTimePicker: false,
       timeParams: {
         year: true,
@@ -198,7 +199,7 @@ export default {
         imgPathLists:[],
         docLists: [],
         docPathLists:[],
-        upFileUrl: 'http://localhost:3000/job/uploadFile',
+        upFileUrl: 'http://www.fungming.xyz:3000/job/uploadFile',
 
       isEdit: false,
       fileList: [
@@ -221,7 +222,7 @@ export default {
     // 获取图片列表
     this.imgLists = this.$refs.uImg.lists
     // 获取文件列表
-    this.docLists = this.$refs.lFile.lists;
+    // this.docLists = this.$refs.lFile.lists;
     // 获取用户的openId
     this.openId = uni.getStorageSync('openId')
   },
@@ -277,10 +278,9 @@ export default {
     }
   },
   methods: {
-    submit() {
+    async submit() {
       // 获取图片的路径
       this.form.image = [...this.imgPathLists]
-      console.log(this.form.image);
       
       // 获取文件的路径
       if (this.docLists.length) {
@@ -289,9 +289,9 @@ export default {
       }
    
 
-      if (this.pageType === 0 && !this.isEdit) {
+      if (this.pageType === 0) {
         this.form.className = uni.getStorageSync('curClass')
-        jobApi.addClassJob(this.form).then(res => {
+        await jobApi.addClassJob(this.form).then(res => {
           let {code} = res
           if (code === 0) {
             this.$showToast('添加班级作业成功')
@@ -299,15 +299,15 @@ export default {
             this.switchRemind && this.sendSubcribeMsg()
           }
         })
-      } else if(!this.isEdit){
+      } else if(this.pageType === 1){
         this.form.studentId = uni.getStorageSync('openId')
-        jobApi.addJob(this.form).then(res => {
+        await jobApi.addJob(this.form).then(async res => {
           let {code, jobId} = res
           const obj = {
             openId: this.openId,
             jobId: jobId
           }
-          studentApi.updateAddJob(obj).then(res => {
+          await studentApi.updateAddJob(obj).then(res => {
             if (res.code === 0) {
               this.$showToast('添加个人作业成功')
               uni.navigateBack({
@@ -316,15 +316,28 @@ export default {
             }
           })
         })
-      } else {
-        jobApi.updateJob(this.form).then(res => {
+      } else if (this.pageType === 2) {
+        await jobApi.updateClassJob(this.form).then(res => {
           let {code} = res
           if (code === 0) {
-            this.$showToast('修改作业成功')
+            this.$showToast('修改班级作业成功')
+            this.switchRemind && this.sendSubcribeMsg()
+          }
+        })
+      } 
+      else if (this.pageType === 3){
+        await jobApi.updateJob(this.form).then(res => {
+          let {code} = res
+          if (code === 0) {
+            this.$showToast('修改个人作业成功')
             this.switchRemind && this.sendSubcribeMsg()
           }
         })
       }
+
+      uni.navigateBack({
+        delta: 1
+      })
 
       // uni.switchTab({
       //   url: '/pages/home/index'
@@ -344,21 +357,41 @@ export default {
         uni.setNavigationBarTitle({
           title:'发布班级作业'
         })
-      } else {
+      } else if (this.pageType === 1){
         uni.setNavigationBarTitle({
           title:'发布个人作业'
+        })
+      } else if (this.pageType === 2) {
+        uni.setNavigationBarTitle({
+          title:'修改班级作业'
+        })
+      } else {
+        uni.setNavigationBarTitle({
+          title:'修改个人作业'
         })
       }
     },
     getFormData(jobId) {
       this.isEdit = true
-      jobApi.getJob(jobId).then(res => {
-        let {code, data} = res
-        if (code === 0) {
-          this.form = {...data}
-          this.getImgList()
-        }
-      })
+      if (this.pageType === 2) {
+        jobApi.getClassJob(jobId).then(res => {
+          let {code, data} = res
+          if (code === 0) {
+            this.form = {...data}
+            this.getImgList()
+            this.getDocLists()
+          }
+        })
+      } else if (this .pageType === 3) {
+        jobApi.getJob(jobId).then(res => {
+          let {code, data} = res
+          if (code === 0) {
+            this.form = {...data}
+            this.getImgList()
+            this.getDocLists()
+          }
+        }) 
+      }
     },
     upFile() {
       /**
@@ -407,10 +440,9 @@ export default {
         }
       })
     },
-    deleteDocItem(index) {
-      let { realPath } = this.docLists[index].response
-      let obj = {delPath: realPath}
-      jobApi.deleteFile(obj).then(res => {
+    async deleteDocItem(index) {
+      let obj = {delPath: this.docLists[index].url}
+      await jobApi.deleteFile(obj).then(res => {
         let {error_code} = res
         if (error_code === 10000) {
           this.docLists.splice(index, 1);
@@ -421,8 +453,7 @@ export default {
     getDocPath() {
       let arr = []
       this.docLists.forEach(item => {
-        let {realPath} = item.response
-        arr.push(realPath)
+        arr.push(item.url)
       })
       return arr
     },
@@ -432,6 +463,49 @@ export default {
         this.imgLists = [...image]
         this.imgPathLists = [...image]
       }
+    },
+    getDocLists() {
+      let { doc } = this.form
+      if (doc.length > 0) {
+        docApi.getDocLists({url: [...doc]}).then(res => {
+          if (res.code === 0) {
+            this.docLists = [...res.data]
+          }
+        })
+      }
+    },
+    addDoc(data, index, lists) {
+      let item = lists[index]
+      let curDate = this.getNowFormatDate()
+      let size = this.getFileSize(item.file.size)
+      let obj = {
+        name: item.file.name,
+        size: size,
+        date: curDate,
+        fileExt: item.fileExt,
+        url: item.response.realPath
+      }
+      this.docLists.push(obj)
+      docApi.addDoc(obj).then(res => {
+        if (res.code === 0) {
+          // this.docLists.push(obj)
+          this.$showToast('上传文件成功！')
+        }
+      })
+    },
+    getNowFormatDate() {
+      let date = new Date()
+      let year = date.getFullYear(), 
+          month = date.getMonth() + 1,
+          day = date.getDate()
+      if (month >= 1 && month <= 9) {
+        month = "0" + month
+      }
+      if (day >= 1 && day <= 9) {
+        day = "0" + day
+      }
+      let curdate = year + '-' + month + '-' + day
+      return curdate  
     },
     sendSubcribeMsg() {
       console.log('发送订阅消息')
@@ -471,12 +545,11 @@ export default {
             },
             success: function(res) {
               console.log(res, '订阅请求')
-              uni.navigateBack({
-                delta: 1
-              })
             }
           })
-        }))
+        })).catch(err => {
+          console.log(err)
+        })
       })
 
       // wx.requestSubscribeMessage({
@@ -577,8 +650,10 @@ export default {
     padding: 20rpx;
     display: flex;
     align-items: center;
-    border: solid 1px #8a8a8a;
+    /* border: solid 1px #8a8a8a; */
     border-radius: 10rpx;
+    overflow: hidden;
+    box-shadow: 1px 2px 4px rgba(34, 25, 25, 0.2);
 	}
 
   .pre-item-content {
@@ -589,6 +664,10 @@ export default {
   }
   .pre-item-title {
     flex: 1;
+    width: 450rpx;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
   }
   .pre-item-size{
     flex: 1;

@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-05-07 13:59:19
- * @LastEditTime: 2021-05-08 16:08:04
+ * @LastEditTime: 2021-05-17 13:11:00
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\self\memberManage.vue
@@ -56,6 +56,8 @@ export default {
 						this.stuList = [...res.data]
 					}
 				})
+			}).catch(res => {
+				console.log(res)
 			})
 		},
 		toAddSite(){

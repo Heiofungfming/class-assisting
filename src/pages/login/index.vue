@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-04-15 21:25:24
- * @LastEditTime: 2021-05-13 15:11:02
+ * @LastEditTime: 2021-05-17 12:57:18
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\login\index.vue
@@ -125,21 +125,29 @@ export default {
       await uni.login({
         provider: 'weixin',
         success: function (res) {
-          loginApi.getUserOpenId(res.code).then(res => {
-             uni.setStorageSync('openId', res.data.openid)
-          })
+          try {
+            loginApi.getUserOpenId(res.code).then(res => {
+              uni.setStorageSync('openId', res.data.openid)
+            })
 
-          loginApi.getAccessToken().then(res => {
-            // console.log(res, 'token')
-            const creatTime = new Date().getTime()
-            let obj = {
-              accessToken: res.data.access_token,
-              createTime: creatTime
-            }
-            uni.setStorageSync('tokenData', obj)
-          })
+            loginApi.getAccessToken().then(res => {
+              // console.log(res, 'token')
+              const creatTime = new Date().getTime()
+              let obj = {
+                accessToken: res.data.access_token,
+                createTime: creatTime
+              }
+              uni.setStorageSync('tokenData', obj)
+            })
+          } catch (error) {
+            console.log(error)
+          }
+        },
+        fail: res => {
+          console.log(res)
         }
       })
+      console.log('登录后')
       await uni.getUserProfile({
         desc: '登录',
         success: res => {

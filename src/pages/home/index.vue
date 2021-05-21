@@ -44,6 +44,8 @@
           :key="item._id"
           :index = index
           @click="swiperClick"
+          @open="openJobSwipe"
+          :show="item.show"
           :options="item.isDone ?  doneOptions : options">
           <u-card :title="item.course"
             padding="20"
@@ -84,6 +86,8 @@
           :key="item._id"
           :index = index
           @click="remindSwiperClick"
+          @open="openRemindSwipe"
+          :show="item.show"
           :options="item.isDone ?  doneOptions : options">
           <u-card :title="item.tag"
             padding="20"
@@ -128,14 +132,14 @@
               </view>
             </view>
             <view class="doc-item-handler">
-				<u-icon size="46"
-				  name="downland"
-				  custom-prefix="custom-icon"
-				  class="u-m-r-5"
-				  @click="download(item.url)"></u-icon>
-				<!-- <u-icon size="46"
-				  name="view"
-				  custom-prefix="custom-icon"></u-icon> -->
+              <u-icon size="46"
+                name="downland"
+                custom-prefix="custom-icon"
+                class="u-m-r-5"
+                @click="download(item.url)"></u-icon>
+              <!-- <u-icon size="46"
+                name="view"
+                custom-prefix="custom-icon"></u-icon> -->
             </view>
           </view>
 		      <!-- <u-button @click="showDoc"></u-button> -->
@@ -144,10 +148,10 @@
     </view>
     <view class="content_footer">
       <u-tabbar :list="tabbarList" 
-      :mid-button="true"
-      active-color="#5677FC"
-      inactive-color="#333333"
-      :before-switch="switchAdd"></u-tabbar>
+        :mid-button="true"
+        active-color="#5677FC"
+        inactive-color="#333333"
+        :before-switch="switchAdd"></u-tabbar>
     </view>
     <!-- <float-btn custom v-show="showFloatBtn" @click="backToTop">
       <slot>
@@ -508,8 +512,11 @@
       async getJobLists() {
         await this.getClassJobLists()
         await this.getPersonJobLists()
-       let  { classJobLists, perJobLists } = this
-          this.jobLists = classJobLists.concat(perJobLists)
+        let  { classJobLists, perJobLists } = this
+        this.jobLists = classJobLists.concat(perJobLists)
+        // this.jobLists.map((val, idx) => {
+				// 	this.jobLists[idx].show = false;
+				// })
       },
       // 获取个人作业列表
       async getPersonJobLists() {
@@ -530,9 +537,9 @@
         })
       },
       getJobDetail(index) {
-        let { _id: id } = this.jobLists[index]
+        let { _id: id, className} = this.jobLists[index]
         uni.navigateTo({
-          url: `/pages/add/detailJob?id=${id}`
+          url: `/pages/add/detailJob?id=${id}&&className=${className}`
         })
       },
       getRemindDetail(index) {
@@ -553,14 +560,18 @@
        * index1: optionList列表索引
        */
       swiperClick(index, index1) {
-        let { _id: id, isDone } = this.jobLists[index]
+        let { _id: id, isDone, className} = this.jobLists[index]
         
         if (index1 === 2) {
-
-          jobApi.deleteJob({id: id}).then(res => {
-            if (res.code === 0) this.getJobLists()
-          })
-
+          if (!className) {
+            jobApi.deleteJob({id: id}).then(res => {
+              if (res.code === 0) this.getJobLists()
+            })
+          } else {
+            jobApi.deleteClassJob({id: id}).then(res => {
+              res.code === 0 && this.getJobLists()
+            })
+          }
         } else if (index1 === 1) {
 
           let obj = {
@@ -575,9 +586,10 @@
             }
           })
 
-        } else {         
+        } else { 
+          const pageType = className ? 2 : 3        
           uni.navigateTo({
-            url: `/pages/add/addJob?jobId=${id}`
+            url: `/pages/add/addJob?jobId=${id}&&pageType=${pageType}`
           })
         }
       },
@@ -698,7 +710,6 @@
             this.selectedDocList = this.docLists
           }
         })
-        
       },
       download(url) {
         uni.downloadFile({
@@ -737,6 +748,18 @@
         
                                 }  
                         })
+      },
+      openJobSwipe(index) {
+        this.jobLists[index].show = true;
+				this.jobLists.map((val, idx) => {
+					if(index != idx) this.jobLists[idx].show = false;
+				})
+      },
+      openRemindSwipe(index) {
+        this.remindLists[index].show = true;
+				this.remindLists.map((val, idx) => {
+					if(index != idx) this.remindLists[idx].show = false;
+				})
       }
   }
 }

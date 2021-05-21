@@ -310,8 +310,9 @@ export default {
 				// 	success: resolve,
 				// 	fail: reject
 				// });
-				uni.chooseFile({
+				wx.chooseMessageFile({
 					count: multiple ? (newMaxCount > 9 ? 9 : newMaxCount) : 1,
+					type: 'file',
 					success: resolve,
 					fail: reject
 				})

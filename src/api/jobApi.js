@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-03 23:43:20
- * @LastEditTime: 2021-05-05 15:13:40
+ * @LastEditTime: 2021-05-16 16:36:47
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\api\jobApi.js
@@ -76,9 +76,22 @@ export default {
   },
   updateClassJob(params) {
     return request({
-      url: '/job/updateClassJob',
+      url: '/classJob/updateJob',
       method: 'POST',
       data: params
     })
   },
+  deleteClassJob(params) {
+    return request({
+      url: '/classJob/deleteJob',
+      method: 'POST',
+      data: params
+    })
+  },
+  getClassJob(query) {
+    return request({
+      url: '/classJob/getJob?id=' + query,
+      method: 'GET'
+    })
+  }
 }
