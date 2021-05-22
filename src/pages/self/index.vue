@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-01-19 21:32:23
- * @LastEditTime: 2021-05-13 23:33:53
+ * @LastEditTime: 2021-05-22 16:45:19
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\self\index.vue
@@ -157,15 +157,26 @@ import {studentApi, classApi} from '@/api/api'
 
 			this.getClassNameList()
 		},
-		onShareAppMessage(res) {
-			console.log(res)
+		async onShareAppMessage(res) {
 			
 			if (res.from === 'button') {// 来自页面内分享按钮
 				console.log(res.target)
 			}
+			
+			let obj = {
+				className: this.className
+			}
+
+			await classApi.getClassMsg({className: this.className}).then(res => {
+				if (res.code === 0) {
+					console.log(res.result)
+					obj.password = res.result.key
+				}
+			})
+
 			return {
 				title: '同学们快加进来吧~',
-				path: '/pages/class/joinClass'
+				path: `/pages/class/joinClass?className=${obj.className}&&password=${obj.password}`
 			}
 		},
 		methods: {

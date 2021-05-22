@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-01-19 21:32:23
- * @LastEditTime: 2021-05-02 11:15:54
+ * @LastEditTime: 2021-05-22 16:46:43
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\class\joinClass.vue
@@ -65,8 +65,8 @@ export default {
       }
     }
   },
-  onLoad() {
-
+  onLoad(obj) {
+    obj.className && this.getFormData(obj.className, obj.password)
   },
   onReady() {
     this.openId = uni.getStorageSync('openId')
@@ -120,6 +120,10 @@ export default {
       }).catch(err => {
         console.log(err)
       })
+    },
+    getFormData(className, password) {
+      this.form.name = className
+      this.form.key = password
     }
   }
 }

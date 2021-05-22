@@ -393,6 +393,7 @@
         perJobLists:  [],
         selectedJobList: [], // 下拉框筛选存储栈
         remindLists: [],
+        saveRemindLists: [], // 存储总的通知列表，用于筛选显示
         docLists: [],
         selectedDocList: [], // 文件下拉框筛选存储栈  
         // 预览文件弹窗样式
@@ -630,9 +631,11 @@
       },
       changeRemind(index) {
         console.log('改变通知类型')
+        this.changeRemindList(this.remindType, this.endType)
       },
       changeEnd(index) {
         console.log('改变通知截止类型')
+        this.changeRemindList(this.remindType, this.endType)
       },
       changeDoc(index) {
         if (index === 0) {
@@ -689,11 +692,33 @@
           }
         }
       },
+      async changeRemindList(remindType, endType) {
+        if (remindType < 1) {
+          await this.getRemindLists()
+        } else {
+          this.remindLists = this.saveRemindLists.filter(item => 
+          item.tag === this.remindOption[remindType].label
+          )
+        }
+        
+        if (endType !== 0) {
+          let time = new Date()
+          this.remindLists = this.remindLists.filter(item => {
+            let endTime = new Date(item.endTime)
+            if (endType === 1) {
+              return time < endTime
+            } else {
+              return time >= endTime 
+            }
+          })
+        }
+      },
       async getRemindLists() {
         await remindApi.getRemindLists(this.className).then(res => {
           let {code, data} = res
           if (code === 0) {
             this.remindLists = [...data]
+            this.saveRemindLists = [...data]
           }
         })
       },

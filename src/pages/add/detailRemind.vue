@@ -1,41 +1,13 @@
 <!--
  * @Author: your name
  * @Date: 2021-04-06 22:49:33
- * @LastEditTime: 2021-05-21 15:35:42
+ * @LastEditTime: 2021-05-21 15:55:03
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \class-assisting\src\pages\add\detailRemind.vue
 -->
 <template>
 	<view class="content">
-		<!-- <view class="content_body">
-			<view class="job_type">通知详情</view>
-			<view class="content_item">
-				<label>通知类型</label>
-				<p>{{remindData.tag}}</p>
-			</view>
-			<view class="content_item">
-				<label>通知标题</label>
-				<p>{{remindData.title}}</p>
-			</view>
-			<view class="content_item">
-				<label>截至时间</label>
-				<p>{{remindData.endTime}}</p>
-			</view>
-			<view class="content_item">
-				<label>通知内容</label>
-				<p>{{remindData.detail}}</p>
-			</view>
-			<view class="content_item">
-				<label>通知配图</label>
-				<img src="/static/logo.png" alt="">
-			</view>
-			<view class="content_item">
-				<label>通知文件</label>
-			</view>
-			<view class="content_photo"></view>
-			<view class="content_file"></view>
-		</view> -->
 		<view class="content_body">
 			<view class="tag">
 				<view class="tag_top">通知详情</view>
